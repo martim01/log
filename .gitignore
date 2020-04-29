@@ -30,3 +30,8 @@
 *.exe
 *.out
 *.app
+/bin/Debug
+/bin/Release
+/lib
+/*.depend
+/*.layout
