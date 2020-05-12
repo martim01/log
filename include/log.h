@@ -3,6 +3,7 @@
 #include <sstream>
 #include <string>
 #include <memory>
+#include <map>
 
 #ifdef __GNUWIN32__
     #ifdef BUILD_DLL
@@ -37,10 +38,18 @@ namespace pml
 
         static Log& Get(enumLevel eLevel=LOG_INFO);
 
-        void SetOutput(std::unique_ptr<LogOutput> pLogout)
+        size_t AddOutput(std::unique_ptr<LogOutput> pLogout)
         {
-            m_pOutput = move(pLogout);
+            ++m_nOutputIdGenerator;
+            return m_mOutput.insert(std::make_pair(m_nOutputIdGenerator, move(pLogout))).first->first;
         }
+
+        void RemoveOutput(size_t nIndex)
+        {
+            m_mOutput.erase(nIndex);
+        }
+
+
 
         template<class T>  // int, double, strings, etc
         Log& operator<<(const T& output)
@@ -77,27 +86,17 @@ namespace pml
             m_logLevel = e;
         }
 
-        void flush()
-        {
-        /*
-          m_stream.str() has your full message here.
-          Good place to prepend time, log-level.
-          Send to console, file, socket, or whatever you like here.
-        */
-            m_pOutput->Flush(m_logLevel, m_stream);
-            m_stream.str(std::string());
-            m_stream.clear();
-        }
+        void flush();
 
     private:
-        Log() : m_logLevel(LOG_INFO) , m_pOutput(new LogOutput()){}
+        Log();
         ~Log()
         {}
 
         std::stringstream  m_stream;
         int                m_logLevel;
-        std::unique_ptr<LogOutput> m_pOutput;
-
+        std::map<size_t, std::unique_ptr<LogOutput>> m_mOutput;
+        size_t m_nOutputIdGenerator;
 
     };
 
