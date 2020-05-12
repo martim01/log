@@ -3,7 +3,7 @@
 
 using namespace pml;
 
-const std::string Log::STR_LEVEL[4] = {"DEBUG", "INFO", "WARNING", "ERROR"};
+const std::string Log::STR_LEVEL[6] = {"TRACE", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"};
 
 Log& Log::Get(enumLevel eLevel)
 {

@@ -32,9 +32,9 @@ namespace pml
         typedef std::ostream&  (*ManipFn)(std::ostream&);
         typedef std::ios_base& (*FlagsFn)(std::ios_base&);
 
-        static const std::string STR_LEVEL[4];
+        static const std::string STR_LEVEL[6];
 
-        enum enumLevel{ LOG_DEBUG=0, LOG_INFO=1, LOG_WARN=2, LOG_ERROR=3 };
+        enum enumLevel{ LOG_TRACE = 0, LOG_DEBUG=1, LOG_INFO=2, LOG_WARN=3, LOG_ERROR=4, LOG_CRITICAL=5 };
 
         static Log& Get(enumLevel eLevel=LOG_INFO);
 
