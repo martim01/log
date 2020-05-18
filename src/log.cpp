@@ -36,3 +36,45 @@ void Log::flush()
     m_stream.str(std::string());
     m_stream.clear();
 }
+
+size_t Log::AddOutput(std::unique_ptr<LogOutput> pLogout)
+{
+    ++m_nOutputIdGenerator;
+    return m_mOutput.insert(std::make_pair(m_nOutputIdGenerator, move(pLogout))).first->first;
+}
+
+void Log::RemoveOutput(size_t nIndex)
+{
+    m_mOutput.erase(nIndex);
+}
+
+
+
+
+Log& Log::operator<<(ManipFn manip) /// endl, flush, setw, setfill, etc.
+{
+    manip(m_stream);
+
+    if (manip == static_cast<ManipFn>(std::flush)
+     || manip == static_cast<ManipFn>(std::endl ) )
+        this->flush();
+
+    return *this;
+}
+
+Log& Log::operator<<(FlagsFn manip) /// setiosflags, resetiosflags
+{
+    manip(m_stream);
+    return *this;
+}
+
+Log& Log::operator()(enumLevel e)
+{
+    m_logLevel = e;
+    return *this;
+}
+
+void Log::SetLevel(enumLevel e)
+{
+    m_logLevel = e;
+}

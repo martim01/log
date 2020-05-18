@@ -6,7 +6,7 @@
 #include <map>
 
 #ifdef __GNUWIN32__
-    #ifdef BUILD_DLL
+    #ifdef LOG_DLL
         #define LOG_EXPORT __declspec(dllexport)
     #else
         #define LOG_EXPORT __declspec(dllimport)
@@ -38,17 +38,9 @@ namespace pml
 
         static Log& Get(enumLevel eLevel=LOG_INFO);
 
-        size_t AddOutput(std::unique_ptr<LogOutput> pLogout)
-        {
-            ++m_nOutputIdGenerator;
-            return m_mOutput.insert(std::make_pair(m_nOutputIdGenerator, move(pLogout))).first->first;
-        }
+        size_t AddOutput(std::unique_ptr<LogOutput> pLogout);
 
-        void RemoveOutput(size_t nIndex)
-        {
-            m_mOutput.erase(nIndex);
-        }
-
+        void RemoveOutput(size_t nIndex);
 
 
         template<class T>  // int, double, strings, etc
@@ -58,33 +50,12 @@ namespace pml
             return *this;
         }
 
-        Log& operator<<(ManipFn manip) /// endl, flush, setw, setfill, etc.
-        {
-            manip(m_stream);
+        Log& operator<<(ManipFn manip);
 
-            if (manip == static_cast<ManipFn>(std::flush)
-             || manip == static_cast<ManipFn>(std::endl ) )
-                this->flush();
+        Log& operator<<(FlagsFn manip);
 
-            return *this;
-        }
-
-        Log& operator<<(FlagsFn manip) /// setiosflags, resetiosflags
-        {
-            manip(m_stream);
-            return *this;
-        }
-
-        Log& operator()(enumLevel e)
-        {
-            m_logLevel = e;
-            return *this;
-        }
-
-        void SetLevel(enumLevel e)
-        {
-            m_logLevel = e;
-        }
+        Log& operator()(enumLevel e);
+        void SetLevel(enumLevel e);
 
         void flush();
 
