@@ -67,13 +67,8 @@
 					<Add option="-Wall" />
 					<Add option="-g" />
 					<Add option="-DBUILD_DLL" />
-					<Add option="-D__GNUWIN32__" />
 					<Add option="-DLOG_DLL" />
 				</Compiler>
-				<Linker>
-					<Add library="user32" />
-					<Add library="user32" />
-				</Linker>
 			</Target>
 		</Build>
 		<Compiler>
