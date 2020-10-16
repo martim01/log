@@ -17,14 +17,7 @@
 
 namespace pml
 {
-    class LOG_EXPORT LogOutput
-    {
-        public:
-            LogOutput(){}
-            virtual ~LogOutput(){}
-            virtual void Flush(int nLogLevel, const std::stringstream&  logStream);
-
-    };
+    class LogOutput;
 
     class LOG_EXPORT Log
     {
@@ -49,6 +42,8 @@ namespace pml
             m_mOutput.erase(nIndex);
         }
 
+        void SetOutputLevel(size_t nIndex, enumLevel eLevel);
+        void SetOutputLevel(enumLevel eLevel);
 
 
         template<class T>  // int, double, strings, etc
@@ -98,6 +93,18 @@ namespace pml
         std::map<size_t, std::unique_ptr<LogOutput>> m_mOutput;
         size_t m_nOutputIdGenerator;
 
+    };
+
+    class LOG_EXPORT LogOutput
+    {
+        public:
+            LogOutput() : m_eLevel(Log::LOG_TRACE){}
+            virtual ~LogOutput(){}
+            virtual void Flush(int nLogLevel, const std::stringstream&  logStream);
+            void SetOutputLevel(Log::enumLevel eLevel);
+            Log::enumLevel GetOutputLevel() const;
+        protected:
+            Log::enumLevel m_eLevel;
     };
 
 };
