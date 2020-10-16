@@ -14,7 +14,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 	target_compile_definitions(pml_log PRIVATE __GNU__)
 endif()
 
-set_target_properties(pml_log PROPERTIES LIBRARY_OUTPUT_DIRECTORY "../lib/")
+set_target_properties(pml_log PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../lib/)
 
 #linux specific
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
