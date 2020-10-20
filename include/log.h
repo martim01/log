@@ -85,6 +85,7 @@ namespace pml
 
 
         protected:
+            std::stringstream Timestamp();
             Log::enumLevel m_eLevel;
             int m_nTimestamp;
             enumTS m_eResolution;
