@@ -60,7 +60,7 @@ namespace pml
         {}
 
         std::stringstream  m_stream;
-        int                m_logLevel;
+        enumLevel          m_logLevel;
         std::map<size_t, std::unique_ptr<LogOutput>> m_mOutput;
         size_t m_nOutputIdGenerator;
 
@@ -69,13 +69,25 @@ namespace pml
     class LOG_EXPORT LogOutput
     {
         public:
-            LogOutput() : m_eLevel(Log::LOG_TRACE){}
+            static const int TS_NONE            = 0;
+            static const int TS_DATE            = 1;
+            static const int TS_TIME            = 2;
+            enum enumTS {TSR_SECOND, TSR_MILLISECOND, TSR_MICROSECOND, TSR_NANOSECOND};
+
+
+            LogOutput(int nTimestamp=TS_TIME, enumTS eResolution=TSR_MILLISECOND) : m_eLevel(Log::LOG_TRACE), m_nTimestamp(nTimestamp), m_eResolution(eResolution){}
             virtual ~LogOutput(){}
-            virtual void Flush(int nLogLevel, const std::stringstream&  logStream);
+
+            virtual void Flush(Log::enumLevel eLogLevel, const std::stringstream&  logStream);
             void SetOutputLevel(Log::enumLevel eLevel);
             Log::enumLevel GetOutputLevel() const;
+
+
+
         protected:
             Log::enumLevel m_eLevel;
+            int m_nTimestamp;
+            enumTS m_eResolution;
     };
 
 };

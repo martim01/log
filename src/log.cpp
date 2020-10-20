@@ -1,5 +1,7 @@
 #include "log.h"
 #include <iostream>
+#include <chrono>
+#include <iomanip>
 
 using namespace pml;
 
@@ -13,11 +15,39 @@ Log& Log::Get(enumLevel eLevel)
 }
 
 
-void LogOutput::Flush(int nLogLevel, const std::stringstream&  logStream)
+void LogOutput::Flush(Log::enumLevel eLogLevel, const std::stringstream&  logStream)
 {
-    if(nLogLevel >= m_eLevel)
+    if(eLogLevel >= m_eLevel)
     {
-        std::cout << Log::STR_LEVEL[nLogLevel] << "\t" << logStream.str();
+        if(m_nTimestamp != TS_NONE)
+        {
+            auto now = std::chrono::system_clock::now();
+            auto in_time_t = std::chrono::system_clock::to_time_t(now);
+            if((m_nTimestamp & TS_DATE))
+            {
+                std::cout << std::put_time(localtime(&in_time_t), "%Y-%m-%d ");
+            }
+            if((m_nTimestamp & TS_TIME))
+            {
+                 std::cout << std::put_time(localtime(&in_time_t), "%H:%M:%S");
+            }
+            switch(m_eResolution)
+            {
+                case TSR_MILLISECOND:
+                    std::cout << "." << std::setw(3) << std::setfill('0') << (std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count()%1000);
+                    break;
+                case TSR_MICROSECOND:
+                    std::cout << "." << std::setw(6) << std::setfill('0') << (std::chrono::duration_cast<std::chrono::microseconds>(now.time_since_epoch()).count()%1000000);
+                    break;
+                case TSR_NANOSECOND:
+                    std::cout << "." << std::setw(9) << std::setfill('0') << (std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count()%1000000000);
+                    break;
+                default:
+                    break;
+            }
+            std::cout << "\t";
+            std::cout << Log::STR_LEVEL[eLogLevel] << "\t" << logStream.str();
+        }
     }
 }
 
