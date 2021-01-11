@@ -4,6 +4,8 @@
 #include <string>
 #include <memory>
 #include <map>
+#include <thread>
+#include <mutex>
 
 #ifdef __GNUWIN32__
     #ifdef LOG_DLL
@@ -41,7 +43,7 @@ namespace pml
         template<class T>  // int, double, strings, etc
         Log& operator<<(const T& output)
         {
-            m_stream << output;
+            GetCreateStream() << output;
             return *this;
         }
 
@@ -59,7 +61,10 @@ namespace pml
         ~Log()
         {}
 
-        std::stringstream  m_stream;
+        std::stringstream& GetCreateStream();
+        std::map<std::thread::id, std::stringstream> m_mStream;
+        std::mutex m_mutex;
+
         enumLevel          m_logLevel;
         std::map<size_t, std::unique_ptr<LogOutput>> m_mOutput;
         size_t m_nOutputIdGenerator;

@@ -76,13 +76,17 @@ Log::Log() : m_logLevel(LOG_INFO) , m_nOutputIdGenerator(0)
 
 void Log::flush()
 {
+    std::stringstream& stream = GetCreateStream();
+
+    std::lock_guard<std::mutex> lg(m_mutex);
+
     for(auto itOutput  = m_mOutput.begin(); itOutput != m_mOutput.end(); ++itOutput)
     {
-        itOutput->second->Flush(m_logLevel, m_stream);
+        itOutput->second->Flush(m_logLevel, stream);
     }
 
-    m_stream.str(std::string());
-    m_stream.clear();
+    stream.str(std::string());
+    stream.clear();
 }
 
 
@@ -120,7 +124,7 @@ void Log::RemoveOutput(size_t nIndex)
 
 Log& Log::operator<<(ManipFn manip) /// endl, flush, setw, setfill, etc.
 {
-    manip(m_stream);
+    manip(GetCreateStream());
 
     if (manip == static_cast<ManipFn>(std::flush)
      || manip == static_cast<ManipFn>(std::endl ) )
@@ -131,7 +135,7 @@ Log& Log::operator<<(ManipFn manip) /// endl, flush, setw, setfill, etc.
 
 Log& Log::operator<<(FlagsFn manip) /// setiosflags, resetiosflags
 {
-    manip(m_stream);
+    manip(GetCreateStream());
     return *this;
 }
 
@@ -144,4 +148,11 @@ Log& Log::operator()(enumLevel e)
 void Log::SetLevel(enumLevel e)
 {
     m_logLevel = e;
+}
+
+std::stringstream& Log::GetCreateStream()
+{
+    std::lock_guard<std::mutex> lg(m_mutex);
+
+    return m_mStream.insert(std::make_pair(std::this_thread::get_id(), std::stringstream())).first->second;
 }
