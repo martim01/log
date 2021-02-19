@@ -8,6 +8,14 @@ using namespace pml;
 
 const std::string LogStream::STR_LEVEL[6] = {"TRACE", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"};
 
+extern "C"
+{
+    LogStream Log(enumLevel elevel)
+    {
+        LogStream lg(elevel);
+        return lg;
+    }
+}
 
 LogManager& LogManager::Get()
 {

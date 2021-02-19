@@ -7,5 +7,5 @@
         #define LOG_EXPORT __declspec(dllimport)
     #endif // NMOS_EXPORT
 #else
-#define LOG_EXPORT
+    #define LOG_EXPORT
 #endif

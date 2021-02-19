@@ -94,9 +94,5 @@ namespace pml
     };
 
 
-    LogStream Log(enumLevel elevel = LOG_INFO)
-    {
-        LogStream lg(elevel);
-        return lg;
-    }
+    extern "C" LOG_EXPORT LogStream Log(enumLevel elevel = LOG_INFO);
 };
