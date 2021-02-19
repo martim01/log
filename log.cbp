@@ -75,7 +75,9 @@
 			<Add option="-std=c++14" />
 			<Add directory="./include" />
 		</Compiler>
+		<Unit filename="include/dlllog.h" />
 		<Unit filename="include/log.h" />
+		<Unit filename="include/logmanager.h" />
 		<Unit filename="src/log.cpp" />
 		<Extensions>
 			<code_completion />
