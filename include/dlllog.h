@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef __GNUWIN32__
+#ifdef _WIN32
     #ifdef LOG_DLL
         #define LOG_EXPORT __declspec(dllexport)
     #else
