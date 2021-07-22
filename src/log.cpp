@@ -15,11 +15,11 @@ LogStream pmlLog(enumLevel elevel)
     return lg;
 }
 
-LogStream Log(enumLevel elevel)
-{
-    LogStream lg(elevel);
-    return lg;
-}
+//LogStream Log(enumLevel elevel)
+//{
+//    LogStream lg(elevel);
+//    return lg;
+//}
 
 LogManager& LogManager::Get()
 {
