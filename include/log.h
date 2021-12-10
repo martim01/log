@@ -71,7 +71,7 @@ namespace pml
         LogStream& operator<<(FlagsFn manip);
 
         LogStream& operator()(enumLevel e=LOG_INFO);
-        void SetLevel(enumLevel e);
+        LogStream& SetLevel(enumLevel e);
 
         void flush();
 

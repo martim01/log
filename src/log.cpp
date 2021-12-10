@@ -160,9 +160,10 @@ LogStream& LogStream::operator()(enumLevel e)
     return *this;
 }
 
-void LogStream::SetLevel(enumLevel e)
+LogStream& LogStream::SetLevel(enumLevel e)
 {
     m_logLevel = e;
+    return *this;
 }
 
 
