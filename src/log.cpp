@@ -3,10 +3,15 @@
 #include <iostream>
 #include <chrono>
 #include <iomanip>
-
+#include "log_version.h"
 using namespace pml;
 
 const std::string LogStream::STR_LEVEL[6] = {"TRACE", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"};
+
+const char* log::GetVersion()    {   return pml::log::VERSION_STRING; }
+const char* log::GetGitDate()    {   return pml::log::GIT_DATE;  }
+const char* log::GetGitTag()     {   return pml::log::GIT_TAG;   }
+const char* log::GetGitBranch()  {   return pml::log::GIT_BRANCH;}
 
 
 LogStream pmlLog(enumLevel elevel)

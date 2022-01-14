@@ -1,10 +1,17 @@
 cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
-project(pml_log LANGUAGES CXX)
+project(pml_log LANGUAGES CXX VERSION 1.0.0)
 
-add_library(pml_log SHARED "src/log.cpp" )
+
+execute_process(COMMAND ${CMAKE_COMMAND} -DNAMESPACE=log -DMAJOR=${PROJECT_VERSION_MAJOR} -DMINOR=${PROJECT_VERSION_MINOR} -DPATCH=${PROJECT_VERSION_PATCH} -P ${CMAKE_CURRENT_SOURCE_DIR}/version.cmake)
+
+
+
+add_library(pml_log SHARED "src/log.cpp" ${CMAKE_BINARY_DIR}/src/log_version.cpp)
 set_target_properties(pml_log PROPERTIES DEBUG_POSTFIX "d")
 
+
 target_include_directories(pml_log PUBLIC ${PROJECT_SOURCE_DIR}/include)
+target_include_directories(pml_log PUBLIC ${CMAKE_BINARY_DIR}/include)
 
 list(APPEND flags "-Wall" "-s" "-fexceptions" "-std=c++14")
 

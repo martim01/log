@@ -93,7 +93,13 @@ namespace pml
 
     };
 
-   // LOG_EXPORT LogStream Log(enumLevel elevel = LOG_INFO);
+   namespace log
+   {
+      LOG_EXPORT const char* GetVersion();
+      LOG_EXPORT const char* GetGitDate();
+      LOG_EXPORT const char* GetGitTag();
+      LOG_EXPORT const char* GetGitBranch();
+   }
 };
 
 LOG_EXPORT pml::LogStream pmlLog(pml::enumLevel elevel = pml::LOG_INFO);
