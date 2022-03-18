@@ -7,7 +7,7 @@
 class wxLogOutput : public pml::LogOutput
 {
     public:
-        explicit wxLogOutput(wxEvtHandler* pHandler);
+        explicit wxLogOutput(wxEvtHandler* pHandler, bool bMilliseconds=false);
         virtual ~wxLogOutput(){}
         void Flush(pml::enumLevel eLogLevel, const std::stringstream&  logStream) override;
 
