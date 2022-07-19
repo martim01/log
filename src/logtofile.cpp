@@ -41,22 +41,30 @@ bool makePath(const std::string& path)
     int ret = mkdir(path.c_str(), mode);
 #endif
     if (ret == 0)
+    {
         return true;
+    }
 
     switch (errno)
     {
     case ENOENT:
         // parent didn't exist, try to create it
         {
-            int pos = path.find_last_of('/');
+            auto pos = path.find_last_of('/');
             if (pos == std::string::npos)
+	    {
 #ifdef _WIN32
                 pos = path.find_last_of('\\');
+	    }
             if (pos == std::string::npos)
+	    {
 #endif
                 return false;
+	    }
             if (!makePath( path.substr(0, pos) ))
+	    {
                 return false;
+	    }
         }
         // now, try to create again
 #ifdef _WIN32
@@ -82,6 +90,7 @@ std::string CreatePath(std::string sPath)
     {
         sPath = sPath.substr(0, sPath.length()-1);
     }
+    return sPath;
 }
 
 
