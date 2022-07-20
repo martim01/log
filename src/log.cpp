@@ -16,8 +16,7 @@ const char* log::GetGitBranch()  {   return pml::log::GIT_BRANCH;}
 
 LogStream pmlLog(enumLevel elevel)
 {
-    LogStream lg(elevel);
-    return lg;
+    return LogStream(elevel);
 }
 
 //LogStream Log(enumLevel elevel)

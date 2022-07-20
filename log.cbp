@@ -76,7 +76,9 @@
 		<Compiler>
 			<Add option="-std=c++14" />
 			<Add directory="./include" />
+			<Add directory="./build" />
 		</Compiler>
+		<Unit filename="build/log_version.cpp" />
 		<Unit filename="include/dlllog.h" />
 		<Unit filename="include/log.h" />
 		<Unit filename="include/logmanager.h" />

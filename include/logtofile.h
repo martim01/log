@@ -2,12 +2,13 @@
 #include "log.h"
 #include <string>
 #include <fstream>
+#include "dlllog.h"
 
 namespace pml
 {
     /** @class LogOutput class that writes the log to a file. A log file is created for each hour and named YYYY-MM-DDTHH.log
     **/
-    class LogToFile : public LogOutput
+    class LOG_EXPORT LogToFile : public LogOutput
     {
         public:
             /** @brief Constructor
