@@ -113,7 +113,7 @@ void LogToFile::OpenFile(const std::string& sFilePath, const std::string& sFileN
 
     if(makePath(m_sFilePath))
     {
-        std::cout << "Unable to create log file "  << sFilePath;
+        std::cout << "Unable to create log file "  << sFilePath << std::endl;
     }
     auto sFile = m_sFilePath+m_sFileName;
     m_ofLog.open(sFile, std::fstream::app);
