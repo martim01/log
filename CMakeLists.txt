@@ -15,12 +15,12 @@ target_include_directories(pml_log PUBLIC ${CMAKE_BINARY_DIR}/include)
 
 list(APPEND flags "-Wall" "-s" "-fexceptions" "-std=c++14")
 
-if(CMAKE_BUILD_TYPE MATCHES Release)
-   list(APPEND flags "-O3" "-s")
-   target_compile_definitions(pml_log PUBLIC NDEBUG DLL_EXPORTS _MSL_STDINT_H)
-else()
+if(CMAKE_BUILD_TYPE MATCHES Debug)
    list(APPEND flags "-g")
    target_compile_definitions(pml_log PUBLIC DEBUG DLL_EXPORTS _MSL_STDINT_H)
+else()
+   list(APPEND flags "-O3" "-s")
+   target_compile_definitions(pml_log PUBLIC NDEBUG DLL_EXPORTS _MSL_STDINT_H)
 endif()
 
 
@@ -34,6 +34,7 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
     target_compile_definitions(pml_log PRIVATE _WIN32)
 endif()
 
+set_target_properties(pml_log PROPERTIES DEBUG_POSTFIX "d")
 set_target_properties(pml_log PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib/)
 set_target_properties(pml_log PROPERTIES VERSION ${PROJECT_VERSION} SOVERSION ${PROJECT_VERSION_MAJOR})
 
