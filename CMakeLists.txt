@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 project(pml_log LANGUAGES CXX VERSION 1.1.0)
-
+set(CMAKE_INSTALL_PREFIX "/usr/local")
 
 execute_process(COMMAND ${CMAKE_COMMAND} -DNAMESPACE=log -DMAJOR=${PROJECT_VERSION_MAJOR} -DMINOR=${PROJECT_VERSION_MINOR} -DPATCH=${PROJECT_VERSION_PATCH} -P ${CMAKE_CURRENT_SOURCE_DIR}/version.cmake)
 
@@ -40,5 +40,5 @@ set_target_properties(pml_log PROPERTIES VERSION ${PROJECT_VERSION} SOVERSION ${
 
 #linux specific
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-	install(TARGETS pml_log LIBRARY DESTINATION /usr/local/lib)
+    install(TARGETS pml_log LIBRARY DESTINATION lib)
 endif()
