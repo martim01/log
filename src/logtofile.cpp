@@ -111,7 +111,7 @@ void LogToFile::OpenFile(const std::string& sFilePath, const std::string& sFileN
     m_sFileName = sFileName;
 
 
-    if(makePath(m_sFilePath))
+    if(makePath(m_sFilePath) == false)
     {
         std::cout << "Unable to create log file "  << sFilePath << std::endl;
     }
