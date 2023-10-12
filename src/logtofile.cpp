@@ -13,6 +13,56 @@
 
 using namespace pml;
 
+#if ((defined(_MSVC_LANG) && MSVC_LANG >=201703L) || __cplusplus >= 201703L)
+
+LogToFile::LogToFile(const std::filesystem::path& rootPath,int nTimestamp, pml::LogOutput::enumTS eResolution) : LogOutput(nTimestamp, eResolution),
+m_rootPath(rootPath)
+{
+}
+
+void LogToFile::OpenFile(const std::string& sFileName)
+{
+    if(m_ofLog.is_open())
+    {
+        m_ofLog.close();
+    }
+
+    m_sCurrentFile = sFileName;
+
+    auto path = m_rootPath;
+    path /= sFileName;
+    path.replace_extension(".log");
+
+    std::filesystem::create_directories(m_rootPath);
+    m_ofLog.open(path.string(), std::fstream::app);
+}
+
+void LogToFile::Flush(pml::enumLevel eLogLevel, const std::stringstream&  logStream)
+{
+    if(eLogLevel >= m_eLevel)
+    {
+        auto now = std::chrono::system_clock::now();
+        auto in_time_t = std::chrono::system_clock::to_time_t(now);
+
+        std::stringstream ssFileName;
+        ssFileName << std::put_time(localtime(&in_time_t), "/%Y-%m-%dT%H");
+
+        if(m_ofLog.is_open() == false || ssFileName.str() != m_sCurrentFile)
+        {
+            OpenFile(ssFileName.str());
+        }
+
+        if(m_ofLog.is_open())
+        {
+            m_ofLog << Timestamp().str();
+            m_ofLog << pml::LogStream::STR_LEVEL[eLogLevel] << "\t" << logStream.str();
+            m_ofLog.flush();
+        }
+    }
+}
+
+
+#else
 bool isDirExist(const std::string& path)
 {
 #ifdef _WIN32
@@ -147,5 +197,5 @@ void LogToFile::Flush(pml::enumLevel eLogLevel, const std::stringstream&  logStr
     }
 }
 
-
+#endif
 

@@ -13,7 +13,7 @@ set_target_properties(pml_log PROPERTIES DEBUG_POSTFIX "d")
 target_include_directories(pml_log PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(pml_log PUBLIC ${CMAKE_BINARY_DIR}/include)
 
-list(APPEND flags "-Wall" "-s" "-fexceptions" "-std=c++14")
+list(APPEND flags "-Wall" "-s" "-fexceptions" "-std=c++17")
 
 if(CMAKE_BUILD_TYPE MATCHES Debug)
    list(APPEND flags "-g")
