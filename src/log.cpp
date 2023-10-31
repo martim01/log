@@ -117,7 +117,6 @@ void LogStream::flush()
     m_stream.str(std::string());
     m_stream.clear();
 }
-
 void LogStream::SetOutputLevel(size_t nIndex, enumLevel eLevel)
 {
     LogManager::Get().SetOutputLevel(nIndex, eLevel);

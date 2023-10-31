@@ -27,19 +27,29 @@ void LogToFile::OpenFile(const std::string& sFileName)
         m_ofLog.close();
     }
 
+
     m_sCurrentFile = sFileName;
 
     auto path = m_rootPath;
     path /= sFileName;
     path.replace_extension(".log");
 
-    std::filesystem::create_directories(m_rootPath);
-    m_ofLog.open(path.string(), std::fstream::app);
+    
+    if(std::error_code ec; std::filesystem::create_directories(m_rootPath, ec) == false && ec.value() !=0)
+    {
+        m_bOk = false;
+        std::cout << "Could not create log directory " << m_rootPath << "\t" << ec.message() << std::endl;
+    }
+    else
+    {
+        m_bOk = true;
+        m_ofLog.open(path.string(), std::fstream::app);
+    }
 }
 
 void LogToFile::Flush(pml::enumLevel eLogLevel, const std::stringstream&  logStream)
 {
-    if(eLogLevel >= m_eLevel)
+    if(eLogLevel >= m_eLevel && m_bOk)
     {
         auto now = std::chrono::system_clock::now();
         auto in_time_t = std::chrono::system_clock::to_time_t(now);
@@ -57,6 +67,11 @@ void LogToFile::Flush(pml::enumLevel eLogLevel, const std::stringstream&  logStr
             m_ofLog << Timestamp().str();
             m_ofLog << pml::LogStream::STR_LEVEL[eLogLevel] << "\t" << logStream.str();
             m_ofLog.flush();
+        }
+        else
+        {
+            std::cout << pml::LogStream::STR_LEVEL[eLogLevel] << "\t" << logStream.str();
+            std::cout.flush();
         }
     }
 }

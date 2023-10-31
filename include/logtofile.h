@@ -34,6 +34,7 @@ namespace pml
             std::string m_sCurrentFile;
             
             std::ofstream m_ofLog;
+            bool m_bOk = true;
     };
 }
 #else
@@ -66,6 +67,7 @@ namespace pml
             std::string m_sFileName;
 
             std::ofstream m_ofLog;
+            bool m_bOk = true;
     };
 }
 #endif
