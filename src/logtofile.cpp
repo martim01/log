@@ -29,12 +29,12 @@ void LogToFile::OpenFile(const std::string& sFileName)
 
 
     m_sCurrentFile = sFileName;
-
-    auto path = m_rootPath;
-    path /= sFileName;
-    path.replace_extension(".log");
-
+    auto sPath = m_rootPath.string() + "/" + sFileName+".log";
     
+    std::cout << "LogToFile1 " << sPath << std::endl;    
+
+
+
     if(std::error_code ec; std::filesystem::create_directories(m_rootPath, ec) == false && ec.value() !=0)
     {
         m_bOk = false;
@@ -43,13 +43,13 @@ void LogToFile::OpenFile(const std::string& sFileName)
     else
     {
         m_bOk = true;
-        m_ofLog.open(path.string(), std::fstream::app);
+        m_ofLog.open(sPath, std::fstream::app);
     }
 }
 
 void LogToFile::Flush(pml::enumLevel eLogLevel, const std::stringstream&  logStream)
 {
-    if(eLogLevel >= m_eLevel && m_bOk)
+    if(eLogLevel >= m_eLevel)// && m_bOk)
     {
         auto now = std::chrono::system_clock::now();
         auto in_time_t = std::chrono::system_clock::to_time_t(now);
