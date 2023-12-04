@@ -47,7 +47,7 @@ void LogToFile::OpenFile(const std::string& sFileName)
     }
 }
 
-void LogToFile::Flush(pml::enumLevel eLogLevel, const std::stringstream&  logStream)
+void LogToFile::Flush(pml::enumLevel eLogLevel, const std::stringstream&  logStream, const std::string& sPrefix)
 {
     if(eLogLevel >= m_eLevel)// && m_bOk)
     {
@@ -65,12 +65,12 @@ void LogToFile::Flush(pml::enumLevel eLogLevel, const std::stringstream&  logStr
         if(m_ofLog.is_open())
         {
             m_ofLog << Timestamp().str();
-            m_ofLog << pml::LogStream::STR_LEVEL[eLogLevel] << "\t" << logStream.str();
+            m_ofLog << pml::LogStream::STR_LEVEL[eLogLevel] << "\t" << "[" << sPrefix << "]\t" << logStream.str();
             m_ofLog.flush();
         }
         else
         {
-            std::cout << pml::LogStream::STR_LEVEL[eLogLevel] << "\t" << logStream.str();
+            std::cout << pml::LogStream::STR_LEVEL[eLogLevel] << "\t" << "[" << sPrefix << "]\t" << logStream.str();
             std::cout.flush();
         }
     }

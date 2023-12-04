@@ -14,10 +14,11 @@ const char* log::GetGitTag()     {   return pml::log::GIT_TAG;   }
 const char* log::GetGitBranch()  {   return pml::log::GIT_BRANCH;}
 
 
-LogStream pmlLog(enumLevel elevel)
+LogStream pmlLog(enumLevel elevel, const std::string& sPrefix)
 {
-    return LogStream(elevel);
+    return LogStream(elevel, sPrefix);
 }
+
 
 //LogStream Log(enumLevel elevel)
 //{
@@ -36,13 +37,13 @@ LogManager::LogManager() : m_nOutputIdGenerator(0)
 {
 }
 
-void LogManager::Flush(const std::stringstream& ssLog, enumLevel eLevel)
+void LogManager::Flush(const std::stringstream& ssLog, enumLevel eLevel, const std::string& sPrefix)
 {
     std::lock_guard<std::mutex> lg(m_mutex);
 
     for(auto& pairOutput : m_mOutput)
     {
-        pairOutput.second->Flush(eLevel, ssLog);
+        pairOutput.second->Flush(eLevel, ssLog, sPrefix);
     }
 }
 
@@ -78,9 +79,8 @@ void LogManager::RemoveOutput(size_t nIndex)
 
 
 
-LogStream::LogStream(enumLevel eLevel) : m_logLevel(eLevel)
+LogStream::LogStream(enumLevel eLevel, const std::string& sPrefix) : m_logLevel(eLevel), m_sPrefix(sPrefix)
 {
-
 }
 
 LogStream::~LogStream()
@@ -89,9 +89,10 @@ LogStream::~LogStream()
     flush();
 }
 
-LogStream::LogStream(const LogStream& lg) : m_logLevel(lg.GetLevel())
+LogStream::LogStream(const LogStream& lg) : m_logLevel(lg.GetLevel()), m_sPrefix(lg.GetPrefix())
 {
     m_stream << lg.GetStream().rdbuf();
+    
 }
 
 
@@ -104,6 +105,7 @@ LogStream& LogStream::operator=(const LogStream& lg)
 
         m_stream << lg.GetStream().rdbuf();
         m_logLevel = lg.GetLevel();
+        m_sPrefix = lg.GetPrefix();
     }
     return *this;
 }
@@ -111,7 +113,7 @@ LogStream& LogStream::operator=(const LogStream& lg)
 
 void LogStream::flush()
 {
-    LogManager::Get().Flush(m_stream, m_logLevel);
+    LogManager::Get().Flush(m_stream, m_logLevel, m_sPrefix);
 
 
     m_stream.str(std::string());
@@ -171,12 +173,12 @@ LogStream& LogStream::SetLevel(enumLevel e)
 
 
 
-void LogOutput::Flush(enumLevel eLogLevel, const std::stringstream&  logStream)
+void LogOutput::Flush(enumLevel eLogLevel, const std::stringstream&  logStream, const std::string& sPrefix)
 {
     if(eLogLevel >= m_eLevel)
     {
         std::cout << Timestamp().str();
-        std::cout << LogStream::STR_LEVEL[eLogLevel] << "\t" << logStream.str();
+        std::cout << LogStream::STR_LEVEL[eLogLevel] << "\t" << "[" << sPrefix << "]\t" << logStream.str();
     }
 }
 

@@ -37,7 +37,7 @@ namespace pml
             *   @param eLogLevel the level of the current message that is being flushed
             *   @param logStream the current message
             **/
-            virtual void Flush(enumLevel eLogLevel, const std::stringstream&  logStream);
+            virtual void Flush(enumLevel eLogLevel, const std::stringstream&  logStream, const std::string& sPrefix);
 
             /** @brief Sets the level that a log message must meet to be output by the LogOutput
             *   @param eLevel the level
@@ -67,7 +67,7 @@ namespace pml
         /** @brief Constructor
         *   @param eLevel the level of the current message
         **/
-        LogStream(enumLevel eLevel = LOG_INFO);
+        LogStream(enumLevel eLevel = LOG_INFO, const std::string& sPrefix="");
 
         ///< @brief Copy Constructor
         LogStream(const LogStream& lg);
@@ -130,12 +130,14 @@ namespace pml
         {
             return m_logLevel;
         }
+        const std::string& GetPrefix() const { return m_sPrefix; }
 
     private:
 
 
         std::stringstream m_stream;
         enumLevel          m_logLevel;
+        std::string m_sPrefix;
 
     };
 
@@ -153,5 +155,6 @@ Usage is pmlLog() << "this is a message";
 *   @param eLevel the message level
 *   @return <i>LogStream</i>
 **/
-LOG_EXPORT pml::LogStream pmlLog(pml::enumLevel elevel = pml::LOG_INFO);
+LOG_EXPORT pml::LogStream pmlLog(pml::enumLevel elevel = pml::LOG_INFO, const std::string& sPrefix="");
+
 

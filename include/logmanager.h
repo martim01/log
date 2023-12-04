@@ -18,7 +18,7 @@ namespace pml
             void SetOutputLevel(enumLevel eLevel);
             void RemoveOutput(size_t nIndex);
 
-            void Flush(const std::stringstream& ssLog, enumLevel eLevel);
+            void Flush(const std::stringstream& ssLog, enumLevel eLevel, const std::string& sPrefix);
 
             std::mutex m_mutex;
 
