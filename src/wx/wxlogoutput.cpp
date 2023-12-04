@@ -9,28 +9,15 @@ m_pHandler(pHandler)
 }
 
 
-void wxLogOutput::Flush(pml::enumLevel eLogLevel, const std::stringstream&  logStream)
+void wxLogOutput::Flush(pml::enumLevel eLogLevel, const std::stringstream&  logStream, const std::string& sPrefix)
 {
     if(m_pHandler && eLogLevel >= m_eLevel)
     {
         wxCommandEvent* pEvent = new wxCommandEvent(wxEVT_LOG);
         pEvent->SetTimestamp(wxDateTime::Now().GetTicks());
         pEvent->SetInt(eLogLevel);
-        pEvent->SetString(wxString(logStream.str()));
+        pEvent->SetString("["+wxString(sPrefix)+"] "+wxString(logStream.str()));
 
-//        wxString sMessage;
-//        sMessage << wxString(Timestamp().str()) << "    " ;
-//
-//        wxString sLevel = "[" + pml::LogStream::STR_LEVEL[eLogLevel] + "]";
-//
-//        sMessage << sLevel;
-//        for(size_t i = sLevel.length(); i < 12; i++)
-//        {
-//            sMessage << " ";
-//        }
-//         sMessage << wxString(logStream.str());
-//
-//        pEvent->SetString(sMessage.c_str());
         wxQueueEvent(m_pHandler, pEvent);
     }
 }
