@@ -29,7 +29,7 @@ void LogToFile::OpenFile(const std::string& sFileName)
 
 
     m_sCurrentFile = sFileName;
-    auto sPath = m_rootPath.string() + "/" + sFileName+".log";
+    auto sPath = m_rootPath.string() + sFileName+".log";
     
     std::cout << "LogToFile1 " << sPath << std::endl;    
 
