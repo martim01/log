@@ -15,6 +15,7 @@ void wxLogOutput::Flush(pml::enumLevel eLogLevel, const std::stringstream&  logS
     {
         wxCommandEvent* pEvent = new wxCommandEvent(wxEVT_LOG);
         pEvent->SetTimestamp(wxDateTime::Now().GetTicks());
+        pEvent->SetExtraLong(wxDateTime::UNow().GetMillisecond());
         pEvent->SetInt(eLogLevel);
         pEvent->SetString("["+wxString(sPrefix)+"] "+wxString(logStream.str()));
 

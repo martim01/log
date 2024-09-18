@@ -80,6 +80,7 @@ namespace pml
         typedef std::ostream&  (*ManipFn)(std::ostream&);
         typedef std::ios_base& (*FlagsFn)(std::ios_base&);
 
+
         static const std::string STR_LEVEL[6];
 
         /** @brief Add a LogOutput derived object to all subsequent log messages
