@@ -35,9 +35,9 @@ namespace pml
 
             /** @brief Called by the LogStream when it needs to be flushed - should not be called directly
             *   @param eLogLevel the level of the current message that is being flushed
-            *   @param logStream the current message
+            *   @param sLog the current message
             **/
-            virtual void Flush(enumLevel eLogLevel, const std::stringstream&  logStream, const std::string& sPrefix);
+            virtual void Flush(enumLevel eLogLevel, const std::string&  sLog, const std::string& sPrefix);
 
             /** @brief Sets the level that a log message must meet to be output by the LogOutput
             *   @param eLevel the level

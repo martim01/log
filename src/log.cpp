@@ -20,12 +20,6 @@ LogStream pmlLog(enumLevel elevel, const std::string& sPrefix)
 }
 
 
-//LogStream Log(enumLevel elevel)
-//{
-//    LogStream lg(elevel);
-//    return lg;
-//}
-
 LogManager& LogManager::Get()
 {
     static LogManager lm;
@@ -33,23 +27,48 @@ LogManager& LogManager::Get()
 
 }
 
-LogManager::LogManager() : m_nOutputIdGenerator(0)
+
+LogManager::LogManager() : m_nOutputIdGenerator(0),
+m_thread([this]{Loop();})
 {
+
+}
+
+LogManager::~LogManager()
+{
+    m_bRun = false;
+    m_cv.notify_one();
+    m_thread.join();
 }
 
 void LogManager::Flush(const std::stringstream& ssLog, enumLevel eLevel, const std::string& sPrefix)
-{
-    std::lock_guard<std::mutex> lg(m_mutex);
+{    
+    m_qLog.enqueue(logEntry(ssLog.str(), eLevel,sPrefix));
+    m_cv.notify_one();
+}
 
-    for(auto& pairOutput : m_mOutput)
+void LogManager::Loop()
+{
+    while(m_bRun)
     {
-        pairOutput.second->Flush(eLevel, ssLog, sPrefix);
+        std::unique_lock lk(m_mutex);
+
+        logEntry entry;
+        while(m_qLog.try_dequeue(entry))
+        {
+            for(auto& pairOutput : m_mOutput)
+            {
+                pairOutput.second->Flush(entry.eLevel, entry.sLog, entry.sPrefix);
+            }
+        }
+        m_cv.wait(lk);
     }
 }
 
 
 void LogManager::SetOutputLevel(size_t nIndex, enumLevel eLevel)
 {
+    std::scoped_lock lg(m_mutex);
     auto itOutput = m_mOutput.find(nIndex);
     if(itOutput != m_mOutput.end())
     {
@@ -59,6 +78,7 @@ void LogManager::SetOutputLevel(size_t nIndex, enumLevel eLevel)
 
 void LogManager::SetOutputLevel(enumLevel eLevel)
 {
+    std::scoped_lock lg(m_mutex);
     for(auto& pairOutput : m_mOutput)
     {
         pairOutput.second->SetOutputLevel(eLevel);
@@ -68,15 +88,20 @@ void LogManager::SetOutputLevel(enumLevel eLevel)
 
 size_t LogManager::AddOutput(std::unique_ptr<LogOutput> pLogout)
 {
+    std::scoped_lock lg(m_mutex);
     ++m_nOutputIdGenerator;
     return m_mOutput.insert(std::make_pair(m_nOutputIdGenerator, move(pLogout))).first->first;
 }
 
 void LogManager::RemoveOutput(size_t nIndex)
 {
+    std::scoped_lock lg(m_mutex);
     m_mOutput.erase(nIndex);
 }
 
+
+
+/************* LogStream ********************/
 
 
 LogStream::LogStream(enumLevel eLevel, const std::string& sPrefix) : m_logLevel(eLevel), m_sPrefix(sPrefix)
@@ -91,8 +116,7 @@ LogStream::~LogStream()
 
 LogStream::LogStream(const LogStream& lg) : m_logLevel(lg.GetLevel()), m_sPrefix(lg.GetPrefix())
 {
-    m_stream << lg.GetStream().rdbuf();
-    
+    m_stream << lg.GetStream().rdbuf();    
 }
 
 
@@ -115,10 +139,10 @@ void LogStream::flush()
 {
     LogManager::Get().Flush(m_stream, m_logLevel, m_sPrefix);
 
-
     m_stream.str(std::string());
     m_stream.clear();
 }
+
 void LogStream::SetOutputLevel(size_t nIndex, enumLevel eLevel)
 {
     LogManager::Get().SetOutputLevel(nIndex, eLevel);
@@ -173,12 +197,14 @@ LogStream& LogStream::SetLevel(enumLevel e)
 
 
 
-void LogOutput::Flush(enumLevel eLogLevel, const std::stringstream&  logStream, const std::string& sPrefix)
+/******* LogOutput ********/
+
+void LogOutput::Flush(enumLevel eLogLevel, const std::string&  sLog, const std::string& sPrefix)
 {
     if(eLogLevel >= m_eLevel)
     {
         std::cout << Timestamp().str();
-        std::cout << LogStream::STR_LEVEL[eLogLevel] << "\t" << "[" << sPrefix << "]\t" << logStream.str();
+        std::cout << LogStream::STR_LEVEL[eLogLevel] << "\t" << "[" << sPrefix << "]\t" << sLog;
     }
 }
 
