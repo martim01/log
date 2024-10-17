@@ -32,7 +32,7 @@ namespace pml
 
             std::filesystem::path m_rootPath;
             std::string m_sCurrentFile;
-            
+
             std::ofstream m_ofLog;
             bool m_bOk = true;
     };
@@ -57,7 +57,7 @@ namespace pml
             *   @param eLogLevel the level of the current message that is being flushed
             *   @param logStream the current message
             **/
-            void Flush(pml::enumLevel eLogLevel, const std::stringstream&  logStream, const std::string& sPrefix) override;
+            void Flush(pml::enumLevel eLogLevel, const std::string&  logStream, const std::string& sPrefix) override;
 
         private:
 

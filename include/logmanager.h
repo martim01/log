@@ -28,7 +28,7 @@ namespace pml
 
             void Loop();
 
-            
+            void Stop();
 
             std::map<size_t, std::unique_ptr<LogOutput>> m_mOutput;
             size_t m_nOutputIdGenerator;
@@ -38,19 +38,19 @@ namespace pml
             {
                 logEntry()=default;
                 ~logEntry()=default;
-                logEntry(const std::string& ss, enumLevel e, const std::string& s) : 
+                logEntry(const std::string& ss, enumLevel e, const std::string& s) :
                     sLog(ss), eLevel(e), sPrefix(s){}
-                
+
                 std::string sLog;
                 enumLevel eLevel;
                 std::string sPrefix;
             };
-            
+
             moodycamel::ConcurrentQueue<logEntry> m_qLog;
-            
-            
+
+
             std::mutex m_mutex;
-            std::thread m_thread;
+            std::unique_ptr<std::thread> m_pThread = nullptr;
             std::atomic_bool m_bRun{true};
             std::condition_variable m_cv;
 

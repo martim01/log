@@ -29,20 +29,30 @@ LogManager& LogManager::Get()
 
 
 LogManager::LogManager() : m_nOutputIdGenerator(0),
-m_thread([this]{Loop();})
+m_pThread(std::make_unique<std::thread>([this]{Loop();}))
 {
 
 }
 
 LogManager::~LogManager()
 {
-    m_bRun = false;
-    m_cv.notify_one();
-    m_thread.join();
+    Stop();
+}
+
+void LogManager::Stop()
+{
+    if(m_pThread)
+    {
+        m_bRun = false;
+        m_cv.notify_one();
+        m_pThread->join();
+        m_pThread = nullptr;
+    }
+
 }
 
 void LogManager::Flush(const std::stringstream& ssLog, enumLevel eLevel, const std::string& sPrefix)
-{    
+{
     m_qLog.enqueue(logEntry(ssLog.str(), eLevel,sPrefix));
     m_cv.notify_one();
 }
@@ -51,8 +61,7 @@ void LogManager::Loop()
 {
     while(m_bRun)
     {
-        std::unique_lock lk(m_mutex);
-
+        std::unique_lock<std::mutex> lk(m_mutex);
         logEntry entry;
         while(m_qLog.try_dequeue(entry))
         {
@@ -68,7 +77,7 @@ void LogManager::Loop()
 
 void LogManager::SetOutputLevel(size_t nIndex, enumLevel eLevel)
 {
-    std::scoped_lock lg(m_mutex);
+    std::lock_guard<std::mutex> lg(m_mutex);
     auto itOutput = m_mOutput.find(nIndex);
     if(itOutput != m_mOutput.end())
     {
@@ -78,7 +87,7 @@ void LogManager::SetOutputLevel(size_t nIndex, enumLevel eLevel)
 
 void LogManager::SetOutputLevel(enumLevel eLevel)
 {
-    std::scoped_lock lg(m_mutex);
+    std::lock_guard<std::mutex> lg(m_mutex);
     for(auto& pairOutput : m_mOutput)
     {
         pairOutput.second->SetOutputLevel(eLevel);
@@ -88,14 +97,14 @@ void LogManager::SetOutputLevel(enumLevel eLevel)
 
 size_t LogManager::AddOutput(std::unique_ptr<LogOutput> pLogout)
 {
-    std::scoped_lock lg(m_mutex);
+    std::lock_guard<std::mutex> lg(m_mutex);
     ++m_nOutputIdGenerator;
     return m_mOutput.insert(std::make_pair(m_nOutputIdGenerator, move(pLogout))).first->first;
 }
 
 void LogManager::RemoveOutput(size_t nIndex)
 {
-    std::scoped_lock lg(m_mutex);
+    std::lock_guard<std::mutex> lg(m_mutex);
     m_mOutput.erase(nIndex);
 }
 
@@ -116,7 +125,7 @@ LogStream::~LogStream()
 
 LogStream::LogStream(const LogStream& lg) : m_logLevel(lg.GetLevel()), m_sPrefix(lg.GetPrefix())
 {
-    m_stream << lg.GetStream().rdbuf();    
+    m_stream << lg.GetStream().rdbuf();
 }
 
 
@@ -193,6 +202,11 @@ LogStream& LogStream::SetLevel(enumLevel e)
 {
     m_logLevel = e;
     return *this;
+}
+
+void LogStream::Stop()
+{
+    LogManager::Get().Stop();
 }
 
 

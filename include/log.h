@@ -105,6 +105,10 @@ namespace pml
         **/
         static void RemoveOutput(size_t nIndex);
 
+        /** @brief Stops the logging thread
+        **/
+        static void Stop();
+
 
         template<class T>  // int, double, strings, etc
         LogStream& operator<<(const T& output)
