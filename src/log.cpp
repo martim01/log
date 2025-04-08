@@ -4,6 +4,7 @@
 #include <chrono>
 #include <iomanip>
 #include "log_version.h"
+
 using namespace pml;
 
 const std::string LogStream::STR_LEVEL[6] = {"TRACE", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"};
@@ -13,6 +14,11 @@ const char* log::GetGitDate()    {   return pml::log::GIT_DATE;  }
 const char* log::GetGitTag()     {   return pml::log::GIT_TAG;   }
 const char* log::GetGitBranch()  {   return pml::log::GIT_BRANCH;}
 
+
+LogStream pml::log::log(pml::log::Level level, const std::string& sPrefix)
+{
+    return LogStream(level, sPrefix);
+}
 
 LogStream pmlLog(enumLevel elevel, const std::string& sPrefix)
 {
@@ -115,6 +121,11 @@ void LogManager::RemoveOutput(size_t nIndex)
 
 LogStream::LogStream(enumLevel eLevel, const std::string& sPrefix) : m_logLevel(eLevel), m_sPrefix(sPrefix)
 {
+}
+
+LogStream(log::Level level, const std::string& sPrefix) : m_logLevel(static_cast<enumLevel>(level)), m_sPrefix(sPrefix)
+{
+    
 }
 
 LogStream::~LogStream()

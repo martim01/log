@@ -13,6 +13,8 @@ namespace pml
 {
     enum enumLevel{ LOG_TRACE = 0, LOG_DEBUG=1, LOG_INFO=2, LOG_WARN=3, LOG_ERROR=4, LOG_CRITICAL=5 };
 
+
+
     /** @class The LogOutput class - the default class writes the log to the console, derive your own class from this to write the log elsewhere
     **/
     class LOG_EXPORT LogOutput
@@ -66,8 +68,15 @@ namespace pml
 
         /** @brief Constructor
         *   @param eLevel the level of the current message
+        *   @deprecated use the log::Level version instead
         **/
         LogStream(enumLevel eLevel = LOG_INFO, const std::string& sPrefix="");
+
+
+        /** @brief Constructor
+        *   @param level the level of the current message
+        **/
+       LogStream(log::Level level = log::Level::kInfo, const std::string& sPrefix="");
 
         ///< @brief Copy Constructor
         LogStream(const LogStream& lg);
@@ -152,13 +161,21 @@ namespace pml
       LOG_EXPORT const char* GetGitDate();
       LOG_EXPORT const char* GetGitTag();
       LOG_EXPORT const char* GetGitBranch();
+
+      enum class Level{ kTrace, kDebug, kInfo, kWarning, kError, kCritical };
+
+    /** @brief helper function to easily access a LogStream. Usage is pml::log::log() << "this is a message";
+    *   @param level the message level
+    *   @return <i>LogStream</i>
+    **/
+      LOG_EXPORT pml::LogStream log(Level level = Level::kInfo, const std::string& sPrefix = "");
    }
 };
 
-/** @brief helper function to easily access a LogStream.
-Usage is pmlLog() << "this is a message";
+/** @brief helper function to easily access a LogStream. Usage is pmlLog() << "this is a message";
 *   @param eLevel the message level
 *   @return <i>LogStream</i>
+*   @deprecated use pml::log::log() instead
 **/
 LOG_EXPORT pml::LogStream pmlLog(pml::enumLevel elevel = pml::LOG_INFO, const std::string& sPrefix="");
 
