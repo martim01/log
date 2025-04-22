@@ -5,11 +5,11 @@
 #include "dlllog.h"
 #if ((defined(_MSVC_LANG) && MSVC_LANG >=201703L) || __cplusplus >= 201703L)
 #include <filesystem>
-namespace pml
+namespace pml::log
 {
     /** @class LogOutput class that writes the log to a file. A log file is created for each hour and named YYYY-MM-DDTHH.log
     **/
-    class LOG_EXPORT LogToFile : public LogOutput
+    class LOG_EXPORT File : public Output
     {
         public:
             /** @brief Constructor
@@ -17,14 +17,14 @@ namespace pml
             *   @param nTimestamp - the format of the timestamp that gets written in to the log
             *   @param eResolution - the resolution of the timestamp
             **/
-            LogToFile(const std::filesystem::path& rootPath, int nTimestamp=TS_TIME, enumTS eResolution=TSR_MILLISECOND);
-            virtual ~LogToFile(){}
+           File(const std::filesystem::path& rootPath, int nTimestamp=kTsTime, TS resolution=TS::kMillisecond);
+            virtual ~File(){}
 
             /** @brief Called by the LogStream when it needs to be flushed - should not be called directly
-            *   @param eLogLevel the level of the current message that is being flushed
+            *   @param level the level of the current message that is being flushed
             *   @param logStream the current message
             **/
-            void Flush(pml::enumLevel eLogLevel, const std::string&  logStream, const std::string& sPrefix) override;
+            void Flush(Level level, const std::string&  logStream, const std::string& sPrefix) override;
 
         private:
 
@@ -42,7 +42,7 @@ namespace pml
 {
     /** @class LogOutput class that writes the log to a file. A log file is created for each hour and named YYYY-MM-DDTHH.log
     **/
-    class LOG_EXPORT LogToFile : public LogOutput
+    class LOG_EXPORT File : public LogOutput
     {
         public:
             /** @brief Constructor
@@ -50,14 +50,14 @@ namespace pml
             *   @param nTimestamp - the format of the timestamp that gets written in to the log
             *   @param eResolution - the resolution of the timestamp
             **/
-            LogToFile(const std::string& sRootPath, int nTimestamp=TS_TIME, enumTS eResolution=TSR_MILLISECOND);
-            virtual ~LogToFile(){}
+           File(const std::string& sRootPath, int nTimestamp=ksTime, TS resolution=TS::kMillisecond);
+            virtual ~File(){}
 
             /** @brief Called by the LogStream when it needs to be flushed - should not be called directly
             *   @param eLogLevel the level of the current message that is being flushed
             *   @param logStream the current message
             **/
-            void Flush(pml::enumLevel eLogLevel, const std::string&  logStream, const std::string& sPrefix) override;
+            void Flush(Level level, const std::string&  logStream, const std::string& sPrefix) override;
 
         private:
 

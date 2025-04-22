@@ -11,16 +11,16 @@
 #include <iomanip>
 #include <algorithm>
 
-using namespace pml;
-
+namespace pml::log
+{
 #if ((defined(_MSVC_LANG) && MSVC_LANG >=201703L) || __cplusplus >= 201703L)
 
-LogToFile::LogToFile(const std::filesystem::path& rootPath,int nTimestamp, pml::LogOutput::enumTS eResolution) : LogOutput(nTimestamp, eResolution),
+File::File(const std::filesystem::path& rootPath,int nTimestamp, Output::TS resolution) : Output(nTimestamp, resolution),
 m_rootPath(rootPath)
 {
 }
 
-void LogToFile::OpenFile(const std::string& sFileName)
+void File::OpenFile(const std::string& sFileName)
 {
     if(m_ofLog.is_open())
     {
@@ -43,9 +43,9 @@ void LogToFile::OpenFile(const std::string& sFileName)
     }
 }
 
-void LogToFile::Flush(pml::enumLevel eLogLevel, const std::string&  sLog, const std::string& sPrefix)
+void File::Flush(Level level, const std::string&  sLog, const std::string& sPrefix)
 {
-    if(eLogLevel >= m_eLevel)// && m_bOk)
+    if(level >= m_level)// && m_bOk)
     {
         auto now = std::chrono::system_clock::now();
         auto in_time_t = std::chrono::system_clock::to_time_t(now);
@@ -61,12 +61,12 @@ void LogToFile::Flush(pml::enumLevel eLogLevel, const std::string&  sLog, const 
         if(m_ofLog.is_open())
         {
             m_ofLog << Timestamp().str();
-            m_ofLog << pml::LogStream::STR_LEVEL[eLogLevel] << "\t" << "[" << sPrefix << "]\t" << sLog;
+            m_ofLog << Stream::STR_LEVEL[static_cast<int>(level)] << "\t" << "[" << sPrefix << "]\t" << sLog;
             m_ofLog.flush();
         }
         else
         {
-            std::cout << pml::LogStream::STR_LEVEL[eLogLevel] << "\t" << "[" << sPrefix << "]\t" << sLog;
+            std::cout << Stream::STR_LEVEL[static_cast<int>(level)] << "\t" << "[" << sPrefix << "]\t" << sLog;
             std::cout.flush();
         }
     }
@@ -156,12 +156,12 @@ std::string CreatePath(std::string sPath)
 
 
 
-LogToFile::LogToFile(const std::string& sRootPath,int nTimestamp, pml::LogOutput::enumTS eResolution) : LogOutput(nTimestamp, eResolution),
+File::File(const std::string& sRootPath,int nTimestamp, Output::TS resolution) : LogOutput(nTimestamp, resolution),
 m_sRootPath(CreatePath(sRootPath))
 {
 }
 
-void LogToFile::OpenFile(const std::string& sFilePath, const std::string& sFileName)
+void File::OpenFile(const std::string& sFilePath, const std::string& sFileName)
 {
     if(m_ofLog.is_open())
     {
@@ -183,9 +183,9 @@ void LogToFile::OpenFile(const std::string& sFilePath, const std::string& sFileN
     //chmod(sFile.c_str(), 0664);
 }
 
-void LogToFile::Flush(pml::enumLevel eLogLevel, const std::string&  sLog, const std::string& sPrefix)
+void File::Flush(Level level, const std::string&  sLog, const std::string& sPrefix)
 {
-    if(eLogLevel >= m_eLevel)
+    if(level >= m_level)
     {
         auto now = std::chrono::system_clock::now();
         auto in_time_t = std::chrono::system_clock::to_time_t(now);
@@ -202,7 +202,7 @@ void LogToFile::Flush(pml::enumLevel eLogLevel, const std::string&  sLog, const 
         if(m_ofLog.is_open())
         {
             m_ofLog << Timestamp().str();
-            m_ofLog << pml::LogStream::STR_LEVEL[eLogLevel] << "\t" << "[" << sPrefix << "]\t" << sLog;
+            m_ofLog << Stream::STR_LEVEL[static_cast<int>(level)] << "\t" << "[" << sPrefix << "]\t" << sLog;
             m_ofLog.flush();
         }
     }
@@ -210,3 +210,4 @@ void LogToFile::Flush(pml::enumLevel eLogLevel, const std::string&  sLog, const 
 
 #endif
 
+}

@@ -11,172 +11,190 @@
 
 namespace pml
 {
+    
+
     enum enumLevel{ LOG_TRACE = 0, LOG_DEBUG=1, LOG_INFO=2, LOG_WARN=3, LOG_ERROR=4, LOG_CRITICAL=5 };
 
-
-
-    /** @class The LogOutput class - the default class writes the log to the console, derive your own class from this to write the log elsewhere
-    **/
-    class LOG_EXPORT LogOutput
+    namespace log
     {
+        LOG_EXPORT const char* GetVersion();
+        LOG_EXPORT const char* GetGitDate();
+        LOG_EXPORT const char* GetGitTag();
+        LOG_EXPORT const char* GetGitBranch();
+
+        class Stream;
+
+        enum class Level{ kTrace, kDebug, kInfo, kWarning, kError, kCritical };
+
+        /** @brief helper function to easily access a LogStream. Usage is pml::log::log() << "this is a message";
+        *   @param level the message level
+        *   @return <i>LogStream</i>
+        **/
+        LOG_EXPORT Stream log(Level level = Level::kInfo, const std::string& sPrefix = "");
+    
+        /** @class The Output class - the default class writes the log to the console, derive your own class from this to write the log elsewhere
+        **/
+        class LOG_EXPORT Output
+        {
+            public:
+
+                static constexpr int kTsNone            = 0;
+                static constexpr int kTsDate            = 1;
+                static constexpr int kTsTime            = 2;
+                /** @enum the timestamp resolution
+                **/
+                enum class TS {kSecond, kMillisecond, kMicrosecond, kNanosecond};
+
+                /** @brief Constructor
+                *   @param nTimestamp the format of the time message to write for each log message. Can be TS_NONE (no message), TS_DATE (yyyy-mm-dd) and/or TS_TIME (hh:mm:ss)
+                *   @param eResolution the resolution of the timestamp message if TS_TIME is set
+                **/
+                Output(int nTimestamp=kTsTime, TS resolution=TS::kMillisecond) : m_level(Level::kTrace), m_nTimestamp(nTimestamp), m_resolution(resolution){}
+                virtual ~Output(){}
+
+                /** @brief Called by the LogStream when it needs to be flushed - should not be called directly
+                *   @param eLogLevel the level of the current message that is being flushed
+                *   @param sLog the current message
+                **/
+                virtual void Flush(Level level, const std::string&  sLog, const std::string& sPrefix);
+
+                /** @brief Sets the level that a log message must meet to be output by the LogOutput
+                *   @param eLevel the level
+                **/
+                void SetOutputLevel(Level level);
+
+                /** @brief Gets the output level that a log message must meet to be output by the LogOutput
+                *   @return  the level
+                **/
+            Level GetOutputLevel() const;
+
+
+
+            protected:
+                std::stringstream Timestamp();
+                Level m_level;
+                int m_nTimestamp;
+                TS m_resolution;
+        };
+
+
+        /** @class the main logging class
+    **/
+        class LOG_EXPORT Stream
+        {
         public:
 
-            static const int TS_NONE            = 0;
-            static const int TS_DATE            = 1;
-            static const int TS_TIME            = 2;
-            /** @enum the timestamp resolution
+            /** @brief Constructor
+            *   @param eLevel the level of the current message
+            *   @deprecated use the log::Level version instead
             **/
-            enum enumTS {TSR_SECOND, TSR_MILLISECOND, TSR_MICROSECOND, TSR_NANOSECOND};
+           Stream(pml::enumLevel eLevel, const std::string& sPrefix);
+
 
             /** @brief Constructor
-            *   @param nTimestamp the format of the time message to write for each log message. Can be TS_NONE (no message), TS_DATE (yyyy-mm-dd) and/or TS_TIME (hh:mm:ss)
-            *   @param eResolution the resolution of the timestamp message if TS_TIME is set
+            *   @param level the level of the current message
             **/
-            LogOutput(int nTimestamp=TS_TIME, enumTS eResolution=TSR_MILLISECOND) : m_eLevel(LOG_TRACE), m_nTimestamp(nTimestamp), m_eResolution(eResolution){}
-            virtual ~LogOutput(){}
+           Stream(log::Level level = log::Level::kInfo, const std::string& sPrefix="");
 
-            /** @brief Called by the LogStream when it needs to be flushed - should not be called directly
-            *   @param eLogLevel the level of the current message that is being flushed
-            *   @param sLog the current message
+            ///< @brief Copy Constructor
+            Stream(const Stream& lg);
+
+            ///< @brief Assignment operator
+            Stream& operator=(const Stream& lg);
+
+            ~Stream();
+
+            typedef std::ostream&  (*ManipFn)(std::ostream&);
+            typedef std::ios_base& (*FlagsFn)(std::ios_base&);
+
+
+            static const std::string STR_LEVEL[6];
+
+            /** @brief Add a Output derived object to all subsequent log messages
+            *   @param pLogout the Output device
+            *   @return <i>size_t</i> the index of the added output
             **/
-            virtual void Flush(enumLevel eLogLevel, const std::string&  sLog, const std::string& sPrefix);
+            static size_t AddOutput(std::unique_ptr<Output> pLogout);
 
-            /** @brief Sets the level that a log message must meet to be output by the LogOutput
+            /** @brief Sets the level a message must meet in order to be output by the Output with the given index
+            *   @param nIndex the index of the Output
             *   @param eLevel the level
+            *   @deprecated
             **/
-            void SetOutputLevel(enumLevel eLevel);
+            static void SetOutputLevel(size_t nIndex, pml::enumLevel eLevel);
 
-            /** @brief Gets the output level that a log message must meet to be output by the LogOutput
-            *   @return <i>enumLevel</i> the level
+            /** @brief Sets the level a message must meet in order to be output by the Output with the given index
+            *   @param nIndex the index of the Output
+            *   @param level the level
             **/
-            enumLevel GetOutputLevel() const;
+            static void SetOutputLevel(size_t nIndex, log::Level level);
+
+            /** @brief Sets the level a message must meet in order to be output by all the LogOutputs
+            *   @param eLevel the level
+            *   @deprecated
+            **/
+            static void SetOutputLevel(pml::enumLevel eLevel);
+
+            /** @brief Sets the level a message must meet in order to be output by all the LogOutputs
+            *   @param level the level
+            **/
+            static void SetOutputLevel(log::Level level);
+
+            /** @brief Removes the LogOutput with the given index
+            *   @param nIndex the index of the LogOutput
+            **/
+            static void RemoveOutput(size_t nIndex);
+
+            /** @brief Stops the logging thread
+            **/
+            static void Stop();
 
 
+            template<class T>  // int, double, strings, etc
+            Stream& operator<<(const T& output)
+            {
+                m_stream << output;
+                return *this;
+            }
+
+            Stream& operator<<(ManipFn manip);
+
+            Stream& operator<<(FlagsFn manip);
+
+            Stream& operator()(log::Level level=log::Level::kInfo);
+            Stream& SetLevel(log::Level level);
+
+            void flush();
 
         protected:
-            std::stringstream Timestamp();
-            enumLevel m_eLevel;
-            int m_nTimestamp;
-            enumTS m_eResolution;
-    };
+            const std::stringstream& GetStream() const
+            {
+                return m_stream;
+            }
+            log::Level GetLevel() const
+            {
+                return m_level;
+            }
+            const std::string& GetPrefix() const { return m_sPrefix; }
 
-    /** @class the main logging class
-    **/
-    class LOG_EXPORT LogStream
-    {
-    public:
-
-        /** @brief Constructor
-        *   @param eLevel the level of the current message
-        *   @deprecated use the log::Level version instead
-        **/
-        LogStream(enumLevel eLevel = LOG_INFO, const std::string& sPrefix="");
+        private:
 
 
-        /** @brief Constructor
-        *   @param level the level of the current message
-        **/
-       LogStream(log::Level level = log::Level::kInfo, const std::string& sPrefix="");
+            std::stringstream m_stream;
+            log::Level m_level;
+            std::string m_sPrefix;
 
-        ///< @brief Copy Constructor
-        LogStream(const LogStream& lg);
+        };
+    }
 
-        ///< @brief Assignment operator
-        LogStream& operator=(const LogStream& lg);
-
-        ~LogStream();
-
-        typedef std::ostream&  (*ManipFn)(std::ostream&);
-        typedef std::ios_base& (*FlagsFn)(std::ios_base&);
-
-
-        static const std::string STR_LEVEL[6];
-
-        /** @brief Add a LogOutput derived object to all subsequent log messages
-        *   @param pLogout the LogOutput device
-        *   @return <i>size_t</i> the index of the added output
-        **/
-        static size_t AddOutput(std::unique_ptr<LogOutput> pLogout);
-
-        /** @brief Sets the level a message must meet in order to be output by the LogOutput with the given index
-        *   @param nIndex the index of the LogOutput
-        *   @param eLevel the level
-        **/
-        static void SetOutputLevel(size_t nIndex, enumLevel eLevel);
-
-        /** @brief Sets the level a message must meet in order to be output by all the LogOutputs
-        *   @param eLevel the level
-        **/
-        static void SetOutputLevel(enumLevel eLevel);
-
-        /** @brief Removes the LogOutput with the given index
-        *   @param nIndex the index of the LogOutput
-        **/
-        static void RemoveOutput(size_t nIndex);
-
-        /** @brief Stops the logging thread
-        **/
-        static void Stop();
-
-
-        template<class T>  // int, double, strings, etc
-        LogStream& operator<<(const T& output)
-        {
-            m_stream << output;
-            return *this;
-        }
-
-        LogStream& operator<<(ManipFn manip);
-
-        LogStream& operator<<(FlagsFn manip);
-
-        LogStream& operator()(enumLevel e=LOG_INFO);
-        LogStream& SetLevel(enumLevel e);
-
-        void flush();
-
-    protected:
-        const std::stringstream& GetStream() const
-        {
-            return m_stream;
-        }
-        enumLevel GetLevel() const
-        {
-            return m_logLevel;
-        }
-        const std::string& GetPrefix() const { return m_sPrefix; }
-
-    private:
-
-
-        std::stringstream m_stream;
-        enumLevel          m_logLevel;
-        std::string m_sPrefix;
-
-    };
-
-   namespace log
-   {
-      LOG_EXPORT const char* GetVersion();
-      LOG_EXPORT const char* GetGitDate();
-      LOG_EXPORT const char* GetGitTag();
-      LOG_EXPORT const char* GetGitBranch();
-
-      enum class Level{ kTrace, kDebug, kInfo, kWarning, kError, kCritical };
-
-    /** @brief helper function to easily access a LogStream. Usage is pml::log::log() << "this is a message";
-    *   @param level the message level
-    *   @return <i>LogStream</i>
-    **/
-      LOG_EXPORT pml::LogStream log(Level level = Level::kInfo, const std::string& sPrefix = "");
-   }
-};
+  
+}
 
 /** @brief helper function to easily access a LogStream. Usage is pmlLog() << "this is a message";
 *   @param eLevel the message level
 *   @return <i>LogStream</i>
 *   @deprecated use pml::log::log() instead
 **/
-LOG_EXPORT pml::LogStream pmlLog(pml::enumLevel elevel = pml::LOG_INFO, const std::string& sPrefix="");
+LOG_EXPORT pml::log::Stream pmlLog(pml::enumLevel elevel = pml::LOG_INFO, const std::string& sPrefix="");
 
 
