@@ -39,7 +39,7 @@ namespace pml
         **/
         LOG_EXPORT Stream log(Level level = Level::kInfo, const std::string& sPrefix = "");
     
-        /** @class The Output class - the default class writes the log to the console, derive your own class from this to write the log elsewhere
+        /** @brief The Output class - the default class writes the log to the console, derive your own class from this to write the log elsewhere
         **/
         class LOG_EXPORT Output
         {
@@ -89,7 +89,7 @@ namespace pml
         };
 
 
-        /** @class the main logging class
+        /** @brief the main logging class
         **/
         class LOG_EXPORT Stream
         {
@@ -161,6 +161,13 @@ namespace pml
             static void Stop();
 
 
+            /**
+             * @brief logging stream operator for ints, doubles, strings etc
+             * 
+             * @tparam T 
+             * @param output 
+             * @return Stream& 
+             */
             template<class T>  // int, double, strings, etc
             Stream& operator<<(const T& output)
             {
@@ -168,6 +175,7 @@ namespace pml
                 return *this;
             }
 
+            
             Stream& operator<<(ManipFn manip);
 
             Stream& operator<<(FlagsFn manip);

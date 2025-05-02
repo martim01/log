@@ -11,7 +11,7 @@
 #include <filesystem>
 namespace pml::log
 {
-    /** @class LogOutput class that writes the log to a file. A log file is created for each hour and named YYYY-MM-DDTHH.log
+    /** @brief Output class that writes the log to a file. A log file is created for each hour and named YYYY-MM-DDTHH.log
     **/
     class LOG_EXPORT File : public Output
     {
@@ -42,9 +42,9 @@ namespace pml::log
     };
 }
 #else
-namespace pml
+namespace pml::log
 {
-    /** @class LogOutput class that writes the log to a file. A log file is created for each hour and named YYYY-MM-DDTHH.log
+    /** @brief Output class that writes the log to a file. A log file is created for each hour and named YYYY-MM-DDTHH.log
     **/
     class LOG_EXPORT File : public LogOutput
     {
