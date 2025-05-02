@@ -1,11 +1,14 @@
-#pragma once
-#include "log.h"
-#include "dlllog.h"
-#include "concurrentqueue.h"
-#include <thread>
-#include <memory>
+#ifndef PML_LOG_MANAGER_H
+#define PML_LOG_MANAGER_H
+
 #include <atomic>
 #include <condition_variable>
+#include <memory>
+#include <thread>
+
+#include "concurrentqueue.h"
+#include "dlllog.h"
+#include "log.h"
 
 namespace pml::log
 {
@@ -48,12 +51,12 @@ namespace pml::log
 
             moodycamel::ConcurrentQueue<logEntry> m_qLog;
 
-
             std::mutex m_mutex;
             std::unique_ptr<std::thread> m_pThread = nullptr;
             std::atomic_bool m_bRun{true};
-            std::condition_variable m_cv;
 
     };
 }
+
+#endif
 

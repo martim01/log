@@ -1,4 +1,7 @@
-#pragma once
+#ifndef PML_LOG_LOG_H
+#define PML_LOG_LOG_H
+
+
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -24,6 +27,10 @@ namespace pml
 
         class Stream;
 
+        /**
+         * @brief the log level
+         * 
+         */
         enum class Level{ kTrace, kDebug, kInfo, kWarning, kError, kCritical };
 
         /** @brief helper function to easily access a LogStream. Usage is pml::log::log() << "this is a message";
@@ -38,9 +45,9 @@ namespace pml
         {
             public:
 
-                static constexpr int kTsNone            = 0;
-                static constexpr int kTsDate            = 1;
-                static constexpr int kTsTime            = 2;
+                static constexpr int kTsNone            = 0;    ///< don't prepend messages
+                static constexpr int kTsDate            = 1;    ///< prepend messages with date
+                static constexpr int kTsTime            = 2;    ///< prepend messages with time
                 /** @enum the timestamp resolution
                 **/
                 enum class TS {kSecond, kMillisecond, kMicrosecond, kNanosecond};
@@ -50,6 +57,11 @@ namespace pml
                 *   @param eResolution the resolution of the timestamp message if TS_TIME is set
                 **/
                 Output(int nTimestamp=kTsTime, TS resolution=TS::kMillisecond) : m_level(Level::kTrace), m_nTimestamp(nTimestamp), m_resolution(resolution){}
+                
+                /**
+                 * @brief Destroy the Output object
+                 * 
+                 */
                 virtual ~Output(){}
 
                 /** @brief Called by the LogStream when it needs to be flushed - should not be called directly
@@ -66,8 +78,7 @@ namespace pml
                 /** @brief Gets the output level that a log message must meet to be output by the LogOutput
                 *   @return  the level
                 **/
-            Level GetOutputLevel() const;
-
+                Level GetOutputLevel() const;
 
 
             protected:
@@ -79,7 +90,7 @@ namespace pml
 
 
         /** @class the main logging class
-    **/
+        **/
         class LOG_EXPORT Stream
         {
         public:
@@ -94,7 +105,7 @@ namespace pml
             /** @brief Constructor
             *   @param level the level of the current message
             **/
-           Stream(log::Level level = log::Level::kInfo, const std::string& sPrefix="");
+           Stream(Level level = Level::kInfo, const std::string& sPrefix="");
 
             ///< @brief Copy Constructor
             Stream(const Stream& lg);
@@ -127,7 +138,7 @@ namespace pml
             *   @param nIndex the index of the Output
             *   @param level the level
             **/
-            static void SetOutputLevel(size_t nIndex, log::Level level);
+            static void SetOutputLevel(size_t nIndex, Level level);
 
             /** @brief Sets the level a message must meet in order to be output by all the LogOutputs
             *   @param eLevel the level
@@ -138,7 +149,7 @@ namespace pml
             /** @brief Sets the level a message must meet in order to be output by all the LogOutputs
             *   @param level the level
             **/
-            static void SetOutputLevel(log::Level level);
+            static void SetOutputLevel(Level level);
 
             /** @brief Removes the LogOutput with the given index
             *   @param nIndex the index of the LogOutput
@@ -161,8 +172,8 @@ namespace pml
 
             Stream& operator<<(FlagsFn manip);
 
-            Stream& operator()(log::Level level=log::Level::kInfo);
-            Stream& SetLevel(log::Level level);
+            Stream& operator()(Level level=Level::kInfo);
+            Stream& SetLevel(Level level);
 
             void flush();
 
@@ -171,7 +182,7 @@ namespace pml
             {
                 return m_stream;
             }
-            log::Level GetLevel() const
+            Level GetLevel() const
             {
                 return m_level;
             }
@@ -181,7 +192,7 @@ namespace pml
 
 
             std::stringstream m_stream;
-            log::Level m_level;
+            Level m_level;
             std::string m_sPrefix;
 
         };
@@ -198,3 +209,4 @@ namespace pml
 LOG_EXPORT pml::log::Stream pmlLog(pml::enumLevel elevel = pml::LOG_INFO, const std::string& sPrefix="");
 
 
+#endif

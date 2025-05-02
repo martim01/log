@@ -55,7 +55,6 @@ void Manager::Stop()
     if(m_pThread)
     {
         m_bRun = false;
-        m_cv.notify_one();
         m_pThread->join();
         m_pThread = nullptr;
     }

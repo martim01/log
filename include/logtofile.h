@@ -1,8 +1,12 @@
-#pragma once
-#include "log.h"
-#include <string>
+#ifndef PML_LOG_FILE_H
+#define PML_LOG_FILE_H
+
 #include <fstream>
+#include <string>
+
 #include "dlllog.h"
+#include "log.h"
+
 #if ((defined(_MSVC_LANG) && MSVC_LANG >=201703L) || __cplusplus >= 201703L)
 #include <filesystem>
 namespace pml::log
@@ -70,4 +74,6 @@ namespace pml
             bool m_bOk = true;
     };
 }
+#endif
+
 #endif
