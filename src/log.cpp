@@ -63,32 +63,31 @@ void Manager::Stop()
 
 void Manager::Flush(const std::stringstream& ssLog, Level level, const std::string& sPrefix)
 {
-    
-    m_qLog.enqueue(logEntry(ssLog.str(), level,sPrefix));
+    std::scoped_lock lg(m_mutex);
+    m_qLog.queue(logEntry(ssLog.str(), level,sPrefix));
 }
 
 void Manager::Loop()
 {
     while(m_bRun)
     {
-        logEntry entry;
-        while(m_qLog.try_dequeue(entry))
-        {
-            for(auto& pairOutput : m_mOutput)
-            {
-                pairOutput.second->Flush(entry.level, entry.sLog, entry.sPrefix);
-            }
-        }
+        HandleQueue();
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
 
-    logEntry entry;
-    while(m_qLog.try_dequeue(entry))
+    HandleQueue();
+}
+
+void Manager::HandleQueue()
+{
+    std::scoped_lock lg(m_mutex);
+    while(m_qLog.empty() == false)
     {
         for(auto& pairOutput : m_mOutput)
         {
-            pairOutput.second->Flush(entry.level, entry.sLog, entry.sPrefix);
+            pairOutput.second->Flush(m_qLog.top().level, m_qLog.top().sLog, m_qLog.top().sPrefix);
         }
+        m_qLog.pop();
     }
 }
 

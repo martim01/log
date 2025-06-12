@@ -6,7 +6,6 @@
 #include <memory>
 #include <thread>
 
-#include "concurrentqueue.h"
 #include "dlllog.h"
 #include "log.h"
 
@@ -33,6 +32,8 @@ namespace pml::log
 
             void Stop();
 
+            void HandleQueue();
+
             std::map<size_t, std::unique_ptr<Output>> m_mOutput;
             size_t m_nOutputIdGenerator;
 
@@ -49,7 +50,7 @@ namespace pml::log
                 std::string sPrefix;
             };
 
-            moodycamel::ConcurrentQueue<logEntry> m_qLog;
+            std::queue<logEntry> m_qLog;
 
             std::mutex m_mutex;
             std::unique_ptr<std::thread> m_pThread = nullptr;

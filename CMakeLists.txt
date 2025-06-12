@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
 project(pml_log LANGUAGES CXX VERSION 1.3.0)
 set(CMAKE_INSTALL_PREFIX "/usr/local")
 
