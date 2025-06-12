@@ -4,6 +4,7 @@
 #include <atomic>
 #include <condition_variable>
 #include <memory>
+#include <queue>
 #include <thread>
 
 #include "dlllog.h"
