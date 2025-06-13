@@ -64,7 +64,7 @@ void Manager::Stop()
 void Manager::Flush(const std::stringstream& ssLog, Level level, const std::string& sPrefix)
 {
     std::scoped_lock lg(m_mutex);
-    m_qLog.queue(logEntry(ssLog.str(), level,sPrefix));
+    m_qLog.push(logEntry(ssLog.str(), level,sPrefix));
 }
 
 void Manager::Loop()
@@ -85,7 +85,7 @@ void Manager::HandleQueue()
     {
         for(auto& pairOutput : m_mOutput)
         {
-            pairOutput.second->Flush(m_qLog.top().level, m_qLog.top().sLog, m_qLog.top().sPrefix);
+            pairOutput.second->Flush(m_qLog.front().level, m_qLog.front().sLog, m_qLog.front().sPrefix);
         }
         m_qLog.pop();
     }
