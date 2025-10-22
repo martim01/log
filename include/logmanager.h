@@ -1,7 +1,10 @@
+#ifndef HEADER_890DAD0FDEE7D13A
+#define HEADER_890DAD0FDEE7D13A
+
 #pragma once
 #include "log.h"
 #include "dlllog.h"
-#include "concurrentqueue.h"
+#include <queue>
 #include <thread>
 #include <memory>
 #include <atomic>
@@ -46,7 +49,7 @@ namespace pml
                 std::string sPrefix;
             };
 
-            moodycamel::ConcurrentQueue<logEntry> m_qLog;
+            std::queue<logEntry> m_qLog;
 
 
             std::mutex m_mutex;
@@ -56,4 +59,6 @@ namespace pml
 
     };
 }
+
+#endif // header guard
 

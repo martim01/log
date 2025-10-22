@@ -1,4 +1,5 @@
 #include "wx/wxlogoutput.h"
+#include <wx/log.h>
 
 wxDEFINE_EVENT(wxEVT_LOG, wxCommandEvent);
 

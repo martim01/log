@@ -31,7 +31,7 @@ LogManager& LogManager::Get()
 LogManager::LogManager() : m_nOutputIdGenerator(0),
 m_pThread(std::make_unique<std::thread>([this]{Loop();}))
 {
-
+    m_bRun = true;
 }
 
 LogManager::~LogManager()
@@ -44,7 +44,6 @@ void LogManager::Stop()
     if(m_pThread)
     {
         m_bRun = false;
-        m_cv.notify_one();
         m_pThread->join();
         m_pThread = nullptr;
     }
@@ -53,24 +52,29 @@ void LogManager::Stop()
 
 void LogManager::Flush(const std::stringstream& ssLog, enumLevel eLevel, const std::string& sPrefix)
 {
-    m_qLog.enqueue(logEntry(ssLog.str(), eLevel,sPrefix));
-    m_cv.notify_one();
+    std::lock_guard<std::mutex> lg(m_mutex);
+    m_qLog.push(logEntry(ssLog.str(), eLevel,sPrefix));
 }
 
 void LogManager::Loop()
 {
     while(m_bRun)
     {
-        std::unique_lock<std::mutex> lk(m_mutex);
-        logEntry entry;
-        while(m_qLog.try_dequeue(entry))
+        std::lock_guard<std::mutex> lk(m_mutex);
+        while(m_qLog.empty() == false)
         {
             for(auto& pairOutput : m_mOutput)
             {
-                pairOutput.second->Flush(entry.eLevel, entry.sLog, entry.sPrefix);
+                pairOutput.second->Flush(m_qLog.front().eLevel, m_qLog.front().sLog, m_qLog.front().sPrefix);
             }
+            m_qLog.pop();
         }
-        m_cv.wait(lk);
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+
+    for(auto& pairOutput : m_mOutput)
+    {
+        pairOutput.second->Flush(LOG_INFO, "Manager Stopped", "pml::log");
     }
 }
 
