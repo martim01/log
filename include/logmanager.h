@@ -30,7 +30,7 @@ namespace pml
             void Flush(const std::stringstream& ssLog, enumLevel eLevel, const std::string& sPrefix);
 
             void Loop();
-
+            void HandleQueue();
             void Stop();
 
             std::map<size_t, std::unique_ptr<LogOutput>> m_mOutput;

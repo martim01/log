@@ -28,10 +28,10 @@ LogManager& LogManager::Get()
 }
 
 
-LogManager::LogManager() : m_nOutputIdGenerator(0),
-m_pThread(std::make_unique<std::thread>([this]{Loop();}))
+LogManager::LogManager() : m_nOutputIdGenerator(0)
 {
     m_bRun = true;
+    m_pThread = std::make_unique<std::thread>([this]{Loop();});
 }
 
 LogManager::~LogManager()
@@ -47,7 +47,7 @@ void LogManager::Stop()
         m_pThread->join();
         m_pThread = nullptr;
     }
-
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
 }
 
 void LogManager::Flush(const std::stringstream& ssLog, enumLevel eLevel, const std::string& sPrefix)
@@ -60,24 +60,29 @@ void LogManager::Loop()
 {
     while(m_bRun)
     {
-        std::lock_guard<std::mutex> lk(m_mutex);
-        while(m_qLog.empty() == false)
-        {
-            for(auto& pairOutput : m_mOutput)
-            {
-                pairOutput.second->Flush(m_qLog.front().eLevel, m_qLog.front().sLog, m_qLog.front().sPrefix);
-            }
-            m_qLog.pop();
-        }
+        HandleQueue();
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 
+    HandleQueue();
     for(auto& pairOutput : m_mOutput)
     {
         pairOutput.second->Flush(LOG_INFO, "Manager Stopped", "pml::log");
     }
 }
 
+void LogManager::HandleQueue()
+{
+    std::lock_guard<std::mutex> lk(m_mutex);
+    while(m_qLog.empty() == false)
+    {
+        for(auto& pairOutput : m_mOutput)
+        {
+            pairOutput.second->Flush(m_qLog.front().eLevel, m_qLog.front().sLog, m_qLog.front().sPrefix);
+        }
+        m_qLog.pop();
+    }
+}
 
 void LogManager::SetOutputLevel(size_t nIndex, enumLevel eLevel)
 {
