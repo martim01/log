@@ -29,7 +29,30 @@ Stream log(Level level, const std::string& sPrefix)
     return Stream(level, sPrefix);
 }
 
-
+Stream trace(const std::string& sPrefix)
+{
+    return Stream(Level::kTrace, sPrefix);
+}   
+Stream debug(const std::string& sPrefix)
+{
+    return Stream(Level::kDebug, sPrefix);
+}   
+Stream info(const std::string& sPrefix)
+{
+    return Stream(Level::kInfo, sPrefix);
+}   
+Stream warning(const std::string& sPrefix)
+{
+    return Stream(Level::kWarning, sPrefix);
+}   
+Stream error(const std::string& sPrefix)
+{
+    return Stream(Level::kError, sPrefix);
+}   
+Stream critical(const std::string& sPrefix)
+{
+    return Stream(Level::kCritical, sPrefix);
+}   
 
 Manager& Manager::Get()
 {
