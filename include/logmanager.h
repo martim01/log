@@ -2,11 +2,10 @@
 #define PML_LOG_MANAGER_H
 
 #include <atomic>
-#include <condition_variable>
 #include <memory>
-#include <queue>
 #include <thread>
 
+#include "concurrentqueue.h"
 #include "dlllog.h"
 #include "log.h"
 
@@ -34,6 +33,12 @@ namespace pml::log
             void Stop();
 
             void HandleQueue();
+            void HandleActionQueue();
+
+            void DoAddOutput(std::unique_ptr<Output> pLogout, size_t nId);
+            void DoSetOutputLevel(size_t nIndex, Level level);
+            void DoSetOutputLevel(Level level);
+            void DoRemoveOutput(size_t nIndex);
 
             std::map<size_t, std::unique_ptr<Output>> m_mOutput;
             size_t m_nOutputIdGenerator;
@@ -51,9 +56,19 @@ namespace pml::log
                 std::string sPrefix;
             };
 
-            std::queue<logEntry> m_qLog;
+            struct action
+            {
+                enum class Type { kAddOutput, kSetOutputLevel, kRemoveOutput, kSetAllOutputLevel };
+                
+                Type eType;
+                size_t nIndex;
+                Level level;
+                std::unique_ptr<Output> pLogout;
+            };
 
-            std::mutex m_mutex;
+            moodycamel::ConcurrentQueue<logEntry> m_qLog;
+            moodycamel::ConcurrentQueue<action> m_qAction;
+
             std::unique_ptr<std::thread> m_pThread = nullptr;
             std::atomic_bool m_bRun{true};
 

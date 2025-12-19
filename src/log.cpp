@@ -87,33 +87,59 @@ void Manager::Stop()
 
 void Manager::Flush(const std::stringstream& ssLog, Level level, const std::string& sPrefix)
 {
-    std::scoped_lock lg(m_mutex);
-    m_qLog.push(logEntry(ssLog.str(), level,sPrefix));
+    m_qLog.try_enqueue(logEntry(ssLog.str(), level,sPrefix));
 }
 
 void Manager::Loop()
 {
     while(m_bRun)
     {
+        HandleActionQueue();
         HandleQueue();
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
 
+    HandleActionQueue();
     HandleQueue();
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
 }
 
+void Manager::HandleActionQueue()
+{
+    action act;
+    while(m_qAction.try_dequeue(act))
+    {
+        switch(act.eType)
+        {
+            case action::Type::kAddOutput:
+                DoAddOutput(std::move(act.pLogout), act.nIndex);
+                break;
+            case action::Type::kSetOutputLevel:
+                DoSetOutputLevel(act.nIndex, act.level);
+                break;
+            case action::Type::kSetAllOutputLevel:
+                DoSetOutputLevel(act.level);
+                break;
+            case action::Type::kRemoveOutput:
+                DoRemoveOutput(act.nIndex);
+                break;
+            default:
+                break;
+        }
+    }
+}
+
 void Manager::HandleQueue()
 {
-    std::scoped_lock lg(m_mutex);
     if(m_mOutput.empty()) return;
-    while(m_qLog.empty() == false)
+
+    logEntry entry;
+    while(m_qLog.try_dequeue(entry))
     {
         for(auto& pairOutput : m_mOutput)
         {
-            pairOutput.second->OutputMessage(m_qLog.front().level, m_qLog.front().sLog, m_qLog.front().sPrefix);
+            pairOutput.second->OutputMessage(entry.level, entry.sLog, entry.sPrefix);
         }
-        m_qLog.pop();
     }
     for(auto& pairOutput : m_mOutput)
     {
@@ -121,10 +147,13 @@ void Manager::HandleQueue()
     }
 }
 
-
 void Manager::SetOutputLevel(size_t nIndex, Level level)
 {
-    std::lock_guard<std::mutex> lg(m_mutex);
+    m_qAction.try_enqueue({action::Type::kSetOutputLevel, nIndex, level, nullptr});
+}
+
+void Manager::DoSetOutputLevel(size_t nIndex, Level level)
+{
     auto itOutput = m_mOutput.find(nIndex);
     if(itOutput != m_mOutput.end())
     {
@@ -134,24 +163,37 @@ void Manager::SetOutputLevel(size_t nIndex, Level level)
 
 void Manager::SetOutputLevel(Level level)
 {
-    std::lock_guard<std::mutex> lg(m_mutex);
+    m_qAction.try_enqueue({action::Type::kSetAllOutputLevel, 0, level, nullptr});
+}
+
+void Manager::DoSetOutputLevel(Level level)
+{
     for(auto& pairOutput : m_mOutput)
     {
         pairOutput.second->SetOutputLevel(level);
     }
 }
 
-
 size_t Manager::AddOutput(std::unique_ptr<Output> pLogout)
 {
-    std::lock_guard<std::mutex> lg(m_mutex);
-    ++m_nOutputIdGenerator;
-    return m_mOutput.insert(std::make_pair(m_nOutputIdGenerator, move(pLogout))).first->first;
+    m_nOutputIdGenerator++;
+    m_qAction.try_enqueue({action::Type::kAddOutput, m_nOutputIdGenerator, Level::kInfo, std::move(pLogout)});
+    return m_nOutputIdGenerator;
+}
+
+
+void Manager::DoAddOutput(std::unique_ptr<Output> pLogout, size_t nId)
+{
+    m_mOutput.insert(std::make_pair(nId, move(pLogout)));
 }
 
 void Manager::RemoveOutput(size_t nIndex)
 {
-    std::lock_guard<std::mutex> lg(m_mutex);
+    m_qAction.try_enqueue({action::Type::kRemoveOutput, nIndex, Level::kInfo, nullptr});
+}
+
+void Manager::DoRemoveOutput(size_t nIndex)
+{
     m_mOutput.erase(nIndex);
 }
 
