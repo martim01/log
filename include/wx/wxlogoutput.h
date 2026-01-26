@@ -4,12 +4,12 @@
 #include <fstream>
 #include <wx/event.h>
 
-class wxLogOutput : public pml::LogOutput
+class wxLogOutput : public pml::log::Output
 {
     public:
         explicit wxLogOutput(wxEvtHandler* pHandler, bool bMilliseconds=false);
         virtual ~wxLogOutput(){}
-        void Flush(pml::log::Level level, const std::string&  sLog, const std::string& sPrefix) override;
+        void DoOutputMessage(pml::log::Level level, const std::string&  sLog, const std::string& sPrefix) override;
 
     private:
         wxEvtHandler* m_pHandler;
