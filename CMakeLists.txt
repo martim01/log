@@ -1,17 +1,23 @@
 cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
+include(addexternal.cmake)
+
 project(pml_log LANGUAGES CXX VERSION 1.4.0)
 set(CMAKE_INSTALL_PREFIX "/usr/local")
+SET(DIR_QUEUE ${DIR_BASE}/external/concurrentqueue CACHE STRING "location of concurrentqueue")
 
 execute_process(COMMAND ${CMAKE_COMMAND} -DNAMESPACE=log -DMAJOR=${PROJECT_VERSION_MAJOR} -DMINOR=${PROJECT_VERSION_MINOR} -DPATCH=${PROJECT_VERSION_PATCH} -DOUTPUT=${CMAKE_BINARY_DIR} -P ${CMAKE_CURRENT_SOURCE_DIR}/version.cmake)
 
 
 
+add_external_library(concurrentqueue ${DIR_QUEUE} "https://github.com/cameron314/concurrentqueue.git" "master" FALSE)
+
 if(NOT TARGET pml_log)
 add_library(pml_log SHARED "src/log.cpp" "src/logtofile.cpp" ${CMAKE_BINARY_DIR}/src/log_version.cpp)
 set_target_properties(pml_log PROPERTIES DEBUG_POSTFIX "d")
 
-target_include_directories(pml_log PUBLIC ${PROJECT_SOURCE_DIR}/include)
-target_include_directories(pml_log PUBLIC ${CMAKE_BINARY_DIR}/include)
+target_include_directories(pml_log PUBLIC ${PROJECT_SOURCE_DIR}/include
+                                          ${CMAKE_BINARY_DIR}/include
+                                          ${DIR_QUEUE})
 
 list(APPEND flags "-Wall" "-s" "-fexceptions" "-std=c++17")
 
