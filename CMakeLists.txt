@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
 include(addexternal.cmake)
 
-project(pml_log LANGUAGES CXX VERSION 1.4.0)
+project(pml_log LANGUAGES CXX VERSION 1.4.1)
 set(CMAKE_INSTALL_PREFIX "/usr/local")
 SET(DIR_QUEUE ${DIR_BASE}/external/concurrentqueue CACHE STRING "location of concurrentqueue")
 

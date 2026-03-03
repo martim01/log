@@ -87,7 +87,7 @@ void Manager::Stop()
 
 void Manager::Flush(const std::stringstream& ssLog, Level level, const std::string& sPrefix)
 {
-    m_qLog.try_enqueue(logEntry(ssLog.str(), level,sPrefix));
+    m_qAction.try_enqueue(action{action::Type::kEntry, 0, level, nullptr, logEntry(ssLog.str(), level, sPrefix)});
 }
 
 void Manager::Loop()
@@ -95,19 +95,16 @@ void Manager::Loop()
     while(m_bRun)
     {
         HandleActionQueue();
-        HandleQueue();
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 
     HandleActionQueue();
-    HandleQueue();
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
 }
 
 void Manager::HandleActionQueue()
 {
     action act;
-    while(m_qAction.try_dequeue(act))
+    while(m_qAction.wait_dequeue_timed(act, std::chrono::milliseconds(100)))
     {
         switch(act.eType)
         {
@@ -123,24 +120,24 @@ void Manager::HandleActionQueue()
             case action::Type::kRemoveOutput:
                 DoRemoveOutput(act.nIndex);
                 break;
+            case action::Type::kEntry:
+                LogAction(act.entry);
+                break;
             default:
                 break;
         }
     }
 }
 
-void Manager::HandleQueue()
+void Manager::LogAction(const logEntry& entry)
 {
     if(m_mOutput.empty()) return;
 
-    logEntry entry;
-    while(m_qLog.try_dequeue(entry))
+    for(auto& pairOutput : m_mOutput)
     {
-        for(auto& pairOutput : m_mOutput)
-        {
-            pairOutput.second->OutputMessage(entry.level, entry.sLog, entry.sPrefix);
-        }
+        pairOutput.second->OutputMessage(entry.level, entry.sLog, entry.sPrefix);
     }
+    
     for(auto& pairOutput : m_mOutput)
     {
         pairOutput.second->MessagesDone();

@@ -5,7 +5,7 @@
 #include <memory>
 #include <thread>
 
-#include "concurrentqueue.h"
+#include "blockingconcurrentqueue.h"
 #include "dlllog.h"
 #include "log.h"
 
@@ -58,16 +58,18 @@ namespace pml::log
 
             struct action
             {
-                enum class Type { kAddOutput, kSetOutputLevel, kRemoveOutput, kSetAllOutputLevel };
+                enum class Type { kAddOutput, kSetOutputLevel, kRemoveOutput, kSetAllOutputLevel, kEntry };
                 
                 Type eType;
                 size_t nIndex;
                 Level level;
                 std::unique_ptr<Output> pLogout;
+                logEntry entry;
             };
 
-            moodycamel::ConcurrentQueue<logEntry> m_qLog;
-            moodycamel::ConcurrentQueue<action> m_qAction;
+            void LogAction(const logEntry& entry);
+
+            moodycamel::BlockingConcurrentQueue<action> m_qAction;
 
             std::unique_ptr<std::thread> m_pThread = nullptr;
             std::atomic_bool m_bRun{true};
