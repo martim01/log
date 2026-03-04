@@ -9,7 +9,7 @@ execute_process(COMMAND ${CMAKE_COMMAND} -DNAMESPACE=log -DMAJOR=${PROJECT_VERSI
 
 
 
-add_external_library(concurrentqueue ${DIR_QUEUE} "https://github.com/cameron314/concurrentqueue.git" "master" FALSE "CMakeLists.txt")
+add_external_library(concurrentqueue ${DIR_QUEUE} "cameron314/concurrentqueue.git" "master" FALSE "CMakeLists.txt")
 
 if(NOT TARGET pml_log)
 add_library(pml_log SHARED "src/log.cpp" "src/logtofile.cpp" ${CMAKE_BINARY_DIR}/src/log_version.cpp)
