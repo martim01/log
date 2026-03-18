@@ -3,7 +3,9 @@ include(addexternal.cmake)
 
 project(pml_log LANGUAGES CXX VERSION 1.4.1)
 set(CMAKE_INSTALL_PREFIX "/usr/local")
-SET(DIR_QUEUE ${DIR_BASE}/external/concurrentqueue CACHE STRING "location of concurrentqueue")
+
+SET(DIR_BASE ${CMAKE_SOURCE_DIR}/external CACHE STRING "base location for libraries")
+SET(DIR_QUEUE ${DIR_BASE}/concurrentqueue CACHE STRING "location of concurrentqueue")
 
 execute_process(COMMAND ${CMAKE_COMMAND} -DNAMESPACE=log -DMAJOR=${PROJECT_VERSION_MAJOR} -DMINOR=${PROJECT_VERSION_MINOR} -DPATCH=${PROJECT_VERSION_PATCH} -DOUTPUT=${CMAKE_BINARY_DIR} -P ${CMAKE_CURRENT_SOURCE_DIR}/version.cmake)
 
