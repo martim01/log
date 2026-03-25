@@ -87,7 +87,7 @@ void Manager::Stop()
 
 void Manager::Flush(const std::stringstream& ssLog, Level level, const std::string& sPrefix)
 {
-    m_qAction.try_enqueue(action{action::Type::kEntry, 0, level, nullptr, logEntry(ssLog.str(), level, sPrefix)});
+    m_qAction.try_enqueue(action(logEntry(ssLog.str(), level, sPrefix)));
 }
 
 void Manager::Loop()
@@ -148,7 +148,7 @@ void Manager::LogAction(const logEntry& entry)
 
 void Manager::SetOutputLevel(size_t nIndex, Level level)
 {
-    m_qAction.try_enqueue({action::Type::kSetOutputLevel, nIndex, level, nullptr});
+    m_qAction.try_enqueue(action(action::Type::kSetOutputLevel, nIndex, level, nullptr));
 }
 
 void Manager::DoSetOutputLevel(size_t nIndex, Level level)
@@ -162,7 +162,7 @@ void Manager::DoSetOutputLevel(size_t nIndex, Level level)
 
 void Manager::SetOutputLevel(Level level)
 {
-    m_qAction.try_enqueue({action::Type::kSetAllOutputLevel, 0, level, nullptr});
+    m_qAction.try_enqueue(action(action::Type::kSetAllOutputLevel, 0, level, nullptr));
 }
 
 void Manager::DoSetOutputLevel(Level level)
@@ -176,7 +176,7 @@ void Manager::DoSetOutputLevel(Level level)
 size_t Manager::AddOutput(std::unique_ptr<Output> pLogout)
 {
     m_nOutputIdGenerator++;
-    m_qAction.try_enqueue({action::Type::kAddOutput, m_nOutputIdGenerator, Level::kInfo, std::move(pLogout)});
+    m_qAction.try_enqueue(action(action::Type::kAddOutput, m_nOutputIdGenerator, Level::kInfo, std::move(pLogout)));
     return m_nOutputIdGenerator;
 }
 
@@ -188,7 +188,7 @@ void Manager::DoAddOutput(std::unique_ptr<Output> pLogout, size_t nId)
 
 void Manager::RemoveOutput(size_t nIndex)
 {
-    m_qAction.try_enqueue({action::Type::kRemoveOutput, nIndex, Level::kInfo, nullptr});
+    m_qAction.try_enqueue(action(action::Type::kRemoveOutput, nIndex, Level::kInfo, nullptr));
 }
 
 void Manager::DoRemoveOutput(size_t nIndex)
@@ -219,13 +219,14 @@ std::stringstream Output::Timestamp()
     {
         auto now = std::chrono::system_clock::now();
         auto in_time_t = std::chrono::system_clock::to_time_t(now);
+        tm local_time;
         if((m_nTimestamp & kTsDate))
         {
-            ssTime << std::put_time(localtime_r(&in_time_t), "%Y-%m-%d ");
+            ssTime << std::put_time(localtime_r(&in_time_t, &local_time), "%Y-%m-%d ");
         }
         if((m_nTimestamp & kTsTime))
         {
-             ssTime << std::put_time(localtime_r(&in_time_t), "%H:%M:%S");
+             ssTime << std::put_time(localtime_r(&in_time_t, &local_time), "%H:%M:%S");
         }
         switch(m_resolution)
         {
