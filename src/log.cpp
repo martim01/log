@@ -7,10 +7,10 @@
 
 
 
-const char* GetVersion()    {   return pml::log::VERSION_STRING; }
-const char* GetGitDate()    {   return pml::log::GIT_DATE;  }
-const char* GetGitTag()     {   return pml::log::GIT_TAG;   }
-const char* GetGitBranch()  {   return pml::log::GIT_BRANCH;}
+const char* GetVersion()    {   return pml::log::kVersionString.c_str(); }
+const char* GetGitDate()    {   return pml::log::kGitDate.c_str();  }
+const char* GetGitTag()     {   return pml::log::kGitTag.c_str();   }
+const char* GetGitBranch()  {   return pml::log::kGitBranch.c_str();}
 
 pml::log::Stream pmlLog(pml::enumLevel elevel, const std::string& sPrefix)
 {
