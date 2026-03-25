@@ -97,8 +97,10 @@ void Manager::Loop()
         HandleActionQueue();
     }
 
-    HandleActionQueue();
+    //allow any enqueued actions to be processed before exiting
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    HandleActionQueue();
+
 }
 
 void Manager::HandleActionQueue()
@@ -219,11 +221,11 @@ std::stringstream Output::Timestamp()
         auto in_time_t = std::chrono::system_clock::to_time_t(now);
         if((m_nTimestamp & kTsDate))
         {
-            ssTime << std::put_time(localtime(&in_time_t), "%Y-%m-%d ");
+            ssTime << std::put_time(localtime_r(&in_time_t), "%Y-%m-%d ");
         }
         if((m_nTimestamp & kTsTime))
         {
-             ssTime << std::put_time(localtime(&in_time_t), "%H:%M:%S");
+             ssTime << std::put_time(localtime_r(&in_time_t), "%H:%M:%S");
         }
         switch(m_resolution)
         {
@@ -275,7 +277,7 @@ Stream::~Stream()
 
 Stream::Stream(const Stream& lg) : m_level(lg.GetLevel()), m_sPrefix(lg.GetPrefix())
 {
-    m_stream << lg.GetStream().rdbuf();
+    m_stream << lg.GetStream().str();
 }
 
 
@@ -286,7 +288,7 @@ Stream& Stream::operator=(const Stream& lg)
         m_stream.str(std::string());
         m_stream.clear();
 
-        m_stream << lg.GetStream().rdbuf();
+        m_stream << lg.GetStream().str();
         m_level = lg.GetLevel();
         m_sPrefix = lg.GetPrefix();
     }

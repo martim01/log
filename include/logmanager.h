@@ -32,7 +32,6 @@ namespace pml::log
 
             void Stop();
 
-            void HandleQueue();
             void HandleActionQueue();
 
             void DoAddOutput(std::unique_ptr<Output> pLogout, size_t nId);
@@ -46,8 +45,6 @@ namespace pml::log
 
             struct logEntry
             {
-                logEntry()=default;
-                ~logEntry()=default;
                 logEntry(const std::string& ss, Level e, const std::string& s) :
                     sLog(ss), level(e), sPrefix(s){}
 
