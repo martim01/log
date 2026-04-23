@@ -15,8 +15,9 @@ namespace pml::log
 {
 #if ((defined(_MSVC_LANG) && _MSVC_LANG >=201703L) || __cplusplus >= 201703L)
 
-File::File(const std::filesystem::path& rootPath,int nTimestamp, Output::TS resolution) : Output(nTimestamp, resolution),
-m_rootPath(rootPath)
+File::File(const std::filesystem::path& rootPath,int nTimestamp, Output::TS resolution, bool bLocalTime) : Output(nTimestamp, resolution),
+m_rootPath(rootPath),
+m_bLocalTime(bLocalTime)
 {
 }
 
@@ -51,7 +52,14 @@ void File::DoOutputMessage(Level level, const std::string&  sLog, const std::str
         auto in_time_t = std::chrono::system_clock::to_time_t(now);
 
         std::stringstream ssFileName;
-        ssFileName << std::put_time(localtime(&in_time_t), "/%Y-%m-%dT%H");
+        if(m_bLocalTime)
+        {
+            ssFileName << std::put_time(localtime(&in_time_t), "/%Y-%m-%dT%H");
+        }
+        else
+        {
+            ssFileName << std::put_time(gmtime(&in_time_t), "/%Y-%m-%dT%H");
+        }
 
         if(m_ofLog.is_open() == false || ssFileName.str() != m_sCurrentFile)
         {
@@ -66,7 +74,14 @@ void File::DoOutputMessage(Level level, const std::string&  sLog, const std::str
         }
         else
         {
-            std::cout << Stream::STR_LEVEL[static_cast<int>(level)] << "\t" << "[" << sPrefix << "]\t" << sLog;
+            if(m_bLocalTime)
+            {
+                std::cout << Stream::STR_LEVEL[static_cast<int>(level)] << "\t" << "[" << sPrefix << "]\t" << sLog;
+            }
+            else
+            {
+                std::cout << Stream::STR_LEVEL[static_cast<int>(level)] << "\t" << "[" << sPrefix << "]\t" << sLog;
+            }
             std::cout.flush();
         }
     }
@@ -167,8 +182,9 @@ std::string CreatePath(std::string sPath)
 
 
 
-File::File(const std::string& sRootPath,int nTimestamp, Output::TS resolution) : LogOutput(nTimestamp, resolution),
-m_sRootPath(CreatePath(sRootPath))
+File::File(const std::string& sRootPath,int nTimestamp, Output::TS resolution, bool bLocalTime) : LogOutput(nTimestamp, resolution),
+m_sRootPath(CreatePath(sRootPath)),
+m_bLocalTime(bLocalTime)
 {
 }
 
@@ -203,7 +219,14 @@ void File::Flush(Level level, const std::string&  sLog, const std::string& sPref
 
         std::stringstream ssFilePath;
         std::stringstream ssFileName;
-        ssFileName << std::put_time(localtime(&in_time_t), "/%Y-%m-%dT%H") << ".log";
+        if(m_bLocalTime)
+        {
+            ssFileName << std::put_time(localtime(&in_time_t), "/%Y-%m-%dT%H");
+        }
+        else
+        {
+            ssFileName << std::put_time(gmtime(&in_time_t), "/%Y-%m-%dT%H");
+        }
 
         if(m_ofLog.is_open() == false || m_sRootPath != m_sFilePath || ssFileName.str() != m_sFileName)
         {

@@ -20,8 +20,9 @@ namespace pml::log
             *   @param sRootPath - the root path that the log files should live in.
             *   @param nTimestamp - the format of the timestamp that gets written in to the log
             *   @param eResolution - the resolution of the timestamp
+            *   @param bLocalTime - whether to use local time or UTC time for the timestamp
             **/
-           File(const std::filesystem::path& rootPath, int nTimestamp=kTsTime, TS resolution=TS::kMillisecond);
+           File(const std::filesystem::path& rootPath, int nTimestamp=kTsTime, TS resolution=TS::kMillisecond, bool bLocalTime=true);
             virtual ~File(){}
 
 
@@ -34,7 +35,7 @@ namespace pml::log
 
             std::filesystem::path m_rootPath;
             std::string m_sCurrentFile;
-
+            bool m_bLocalTime = true;
             std::ofstream m_ofLog;
             bool m_bOk = true;
     };
@@ -51,8 +52,9 @@ namespace pml::log
             *   @param sRootPath - the root path that the log files should live in.
             *   @param nTimestamp - the format of the timestamp that gets written in to the log
             *   @param eResolution - the resolution of the timestamp
+            *   @param bLocalTime - whether to use local time or UTC time for the timestamp
             **/
-           File(const std::string& sRootPath, int nTimestamp=ksTime, TS resolution=TS::kMillisecond);
+           File(const std::string& sRootPath, int nTimestamp=ksTime, TS resolution=TS::kMillisecond, bool bLocalTime=true);
             virtual ~File(){}
 
 
@@ -64,7 +66,7 @@ namespace pml::log
             std::string m_sRootPath;
             std::string m_sFilePath;
             std::string m_sFileName;
-
+            bool m_bLocalTime = true;
             std::ofstream m_ofLog;
             bool m_bOk = true;
     };
