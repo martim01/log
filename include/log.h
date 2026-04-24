@@ -14,6 +14,7 @@
 
 namespace pml
 {
+    //deprecated old levels
     enum enumLevel{ LOG_TRACE = 0, LOG_DEBUG=1, LOG_INFO=2, LOG_WARN=3, LOG_ERROR=4, LOG_CRITICAL=5 };
 
     namespace log
@@ -37,11 +38,34 @@ namespace pml
         **/
         LOG_EXPORT Stream log(Level level = Level::kInfo, const std::string& sPrefix = "");
 
+        /** @brief helper function to easily access a LogStream. Usage is pml::log::trace() << "this is a message";
+        *   @return <i>LogStream</i>
+        **/
         LOG_EXPORT Stream trace(const std::string& sPrefix = "");
+
+        /** @brief helper function to easily access a LogStream. Usage is pml::log::debug() << "this is a message";
+        *   @return <i>LogStream</i>
+        **/
         LOG_EXPORT Stream debug(const std::string& sPrefix = "");
+        
+        /** @brief helper function to easily access a LogStream. Usage is pml::log::info() << "this is a message";
+        *   @return <i>LogStream</i>
+        **/
         LOG_EXPORT Stream info(const std::string& sPrefix = "");
+        
+        /** @brief helper function to easily access a LogStream. Usage is pml::log::warning() << "this is a message";
+        *   @return <i>LogStream</i>
+        **/
         LOG_EXPORT Stream warning(const std::string& sPrefix = "");
+        
+        /** @brief helper function to easily access a LogStream. Usage is pml::log::error() << "this is a message";
+        *   @return <i>LogStream</i>
+        **/
         LOG_EXPORT Stream error(const std::string& sPrefix = "");
+        
+        /** @brief helper function to easily access a LogStream. Usage is pml::log::critical() << "this is a message";
+        *   @return <i>LogStream</i>
+        **/
         LOG_EXPORT Stream critical(const std::string& sPrefix = "");
     
         /** @brief The Output class - the default class writes the log to the console, derive your own class from this to write the log elsewhere
@@ -209,8 +233,17 @@ namespace pml
             Stream& operator<<(FlagsFn manip);
 
             Stream& operator()(Level level=Level::kInfo);
+            
+            /**
+            * @brief set the level of the current log message
+            * @param level the level
+            * @return Stream&
+            **/
             Stream& SetLevel(Level level);
 
+            /**
+            * @brief flushes the stream - sending the log message to the output
+            **/
             void flush();
 
         protected:
