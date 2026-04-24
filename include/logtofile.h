@@ -45,7 +45,7 @@ namespace pml::log
 {
     /** @brief Output class that writes the log to a file. A log file is created for each hour and named YYYY-MM-DDTHH.log
     **/
-    class LOG_EXPORT File : public LogOutput
+    class LOG_EXPORT File : public Output
     {
         public:
             /** @brief Constructor
