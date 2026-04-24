@@ -182,7 +182,7 @@ std::string CreatePath(std::string sPath)
 
 
 
-File::File(const std::string& sRootPath,int nTimestamp, Output::TS resolution, bool bLocalTime) : LogOutput(nTimestamp, resolution),
+File::File(const std::string& sRootPath,int nTimestamp, Output::TS resolution, bool bLocalTime) : Output(nTimestamp, resolution),
 m_sRootPath(CreatePath(sRootPath)),
 m_bLocalTime(bLocalTime)
 {
