@@ -210,14 +210,13 @@ void File::OpenFile(const std::string& sFilePath, const std::string& sFileName)
     //chmod(sFile.c_str(), 0664);
 }
 
-void File::Flush(Level level, const std::string&  sLog, const std::string& sPrefix)
+void File::DoOutputMessage(Level level, const std::string&  sLog, const std::string& sPrefix)
 {
-    if(level >= m_level)
+    if(level >= m_level)// && m_bOk)
     {
         auto now = std::chrono::system_clock::now();
         auto in_time_t = std::chrono::system_clock::to_time_t(now);
 
-        std::stringstream ssFilePath;
         std::stringstream ssFileName;
         if(m_bLocalTime)
         {
@@ -228,7 +227,7 @@ void File::Flush(Level level, const std::string&  sLog, const std::string& sPref
             ssFileName << std::put_time(gmtime(&in_time_t), "/%Y-%m-%dT%H");
         }
 
-        if(m_ofLog.is_open() == false || m_sRootPath != m_sFilePath || ssFileName.str() != m_sFileName)
+        if(m_ofLog.is_open() == false || ssFileName.str() != m_sFileName)
         {
             OpenFile(m_sRootPath, ssFileName.str());
         }
@@ -237,6 +236,19 @@ void File::Flush(Level level, const std::string&  sLog, const std::string& sPref
         {
             m_ofLog << Timestamp().str();
             m_ofLog << Stream::STR_LEVEL[static_cast<int>(level)] << "\t" << "[" << sPrefix << "]\t" << sLog;
+            m_ofLog.flush();
+        }
+        else
+        {
+            if(m_bLocalTime)
+            {
+                std::cout << Stream::STR_LEVEL[static_cast<int>(level)] << "\t" << "[" << sPrefix << "]\t" << sLog;
+            }
+            else
+            {
+                std::cout << Stream::STR_LEVEL[static_cast<int>(level)] << "\t" << "[" << sPrefix << "]\t" << sLog;
+            }
+            std::cout.flush();
         }
     }
 }
@@ -245,13 +257,14 @@ void File::Flush()
 {
     if(m_ofLog.is_open())
     {
-            m_ofLog.flush();
-        }
+        m_ofLog.flush();
+    }
     else
     {
         std::cout << std::flush;
-    }
+    }   
 }
+
 #endif
 
 }
