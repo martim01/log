@@ -15,10 +15,14 @@ There are the following custom **cmake** variables used to define the location t
 
 # How it works
 The library consists of two public classes `Stream` and `Output` and an internal class `Manager`
+
 The `Stream` class contains a `std::stringstream` and a log level variable. When a `Stream` is flushed, either by the program passing `std::endl;` or in the `Stream` destructor, 
 the contents of the stream are added to a queue in the `Manager` class.
+
 The `Manager` class runs is a separate thread and has a simple loop to handle the log messages added to the queue. It send each message to all the defined `Output` objects.
+
 The `Output` class defines what should be done with the log message. The base class checks whether the level of the log message exceeds a configured minimum level and if so outputs the message to `std::cout`.
+
 There is also a `File` class derived from the base `Output` class that saves the message to a file.
 
 It is possible for the developer to derive their own Output classes to handle log messages in other ways.
@@ -35,8 +39,8 @@ auto nFileId = pml::log::Stream::AddOutput(std::make_unique<pml::log::File>("/va
 
 To create a log message you can simply call the helper functions
 ```C++
-pml::log::info("myprog") << "This is an info message"
-pml::log::debug("myprog") << "And this is a debug message"
+pml::log::info("myprog") << "This is an info message";
+pml::log::debug("myprog") << "And this is a debug message";
 ```
 
 You can also create a Stream object and keep adding to the log message to it
