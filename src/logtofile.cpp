@@ -68,7 +68,7 @@ void File::DoOutputMessage(Level level, const std::string&  sLog, const std::str
 
         if(m_ofLog.is_open())
         {
-            m_ofLog << Timestamp().str();
+            m_ofLog << Timestamp(m_bLocalTime).str();
             m_ofLog << Stream::STR_LEVEL[static_cast<int>(level)] << "\t" << "[" << sPrefix << "]\t" << sLog;
             m_ofLog.flush();
         }

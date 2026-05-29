@@ -56,13 +56,16 @@ Stream critical(const std::string& sPrefix)
 
 Manager& Manager::Get()
 {
-    static Manager lm;
-    return lm;
+    // Intentionally leak the manager so logging remains valid during static
+    // destruction. This avoids shutdown-order crashes when other global
+    // destructors log after the manager would otherwise be destroyed.
+    static Manager* lm = new Manager();
+    return *lm;
 
 }
 
 
-Manager::Manager() : m_nOutputIdGenerator(0), m_pThread(nullptr)
+Manager::Manager() : m_nOutputIdGenerator(0), m_qAction(640), m_pThread(nullptr)
 {
     // ensure the run flag is set before launching the thread
     m_bRun = true;
@@ -212,7 +215,7 @@ void Output::Flush()
     std::cout << std::flush;
 }
 
-std::stringstream Output::Timestamp()
+std::stringstream Output::Timestamp(bool bLocal)   
 {
     std::stringstream ssTime;
     if(m_nTimestamp != kTsNone)
@@ -222,11 +225,25 @@ std::stringstream Output::Timestamp()
         tm local_time;
         if((m_nTimestamp & kTsDate))
         {
-            ssTime << std::put_time(localtime_r(&in_time_t, &local_time), "%Y-%m-%d ");
+            if(bLocal)
+            {
+                ssTime << std::put_time(localtime_r(&in_time_t, &local_time), "%Y-%m-%d ");
+            }
+            else
+            {
+                ssTime << std::put_time(gmtime_r(&in_time_t, &local_time), "%Y-%m-%d ");
+            }
         }
         if((m_nTimestamp & kTsTime))
         {
-             ssTime << std::put_time(localtime_r(&in_time_t, &local_time), "%H:%M:%S");
+            if(bLocal)
+            {
+                ssTime << std::put_time(localtime_r(&in_time_t, &local_time), "%H:%M:%S");
+            }
+            else
+            {
+                ssTime << std::put_time(gmtime_r(&in_time_t, &local_time), "%H:%M:%S");
+            }
         }
         switch(m_resolution)
         {

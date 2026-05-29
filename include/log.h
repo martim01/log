@@ -134,7 +134,12 @@ namespace pml
                  */
                 void MessagesDone(){Flush(); }
 
-                std::stringstream Timestamp();
+                /**
+                 * @brief Generates a timestamp string based on the Output's settings
+                 * @param bLocal whether to use local time or UTC
+                 * @return a stringstream containing the formatted timestamp
+                 */
+                std::stringstream Timestamp(bool bLocal=true);
                 Level m_level;
                 int m_nTimestamp;
                 TS m_resolution;
