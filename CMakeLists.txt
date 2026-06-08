@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.20 FATAL_ERROR)
 include(addexternal.cmake)
 
 project(pml_log LANGUAGES CXX VERSION 1.4.3)
+set(PML_LOG_VERSION "${PROJECT_VERSION}" CACHE INTERNAL "pml_log version")
 set(CMAKE_INSTALL_PREFIX "/usr/local")
 
 SET(DIR_BASE ${CMAKE_SOURCE_DIR}/external CACHE STRING "base location for libraries")
