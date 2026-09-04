@@ -12,7 +12,7 @@ function(add_external_library name dir repo tag build file)
 
 	if(NOT EXISTS ${dir}/${file})
 		message(STATUS "Cloning ${name} from ${GIT_REPO} to ${dir}")
-		if(${tag} STREQUAL "")
+		if("${tag}" STREQUAL "")
 			message(STATUS "${CMAKE_PROJECT_NAME}: Not using tag '${tag}'")
 			FetchContent_Declare(${name} GIT_REPOSITORY ${GIT_REPO} SOURCE_DIR ${dir})
 		else()
